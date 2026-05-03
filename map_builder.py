@@ -4,7 +4,8 @@ Uses free OpenStreetMap tiles — no API key needed.
 """
 
 import folium
-from folium import plugins
+from folium import plugins, MacroElement
+from jinja2 import Template
 
 # Color palette per day index
 DAY_COLORS = ["#E8593C", "#1D9E75", "#378ADD", "#7F77DD", "#EF9F27", "#D85A30", "#0F6E56"]
@@ -25,6 +26,34 @@ CATEGORY_ICONS = {
 }
 
 
+class LayerToggle(MacroElement):
+    """Injects All / None buttons at the top of the Folium layer-control overlay list."""
+
+    def __init__(self):
+        super().__init__()
+        self._template = Template("""
+            {% macro script(this, kwargs) %}
+            (function () {
+                function tryAdd() {
+                    var ov = document.querySelector('.leaflet-control-layers-overlays');
+                    if (!ov || ov.querySelector('.lc-tb')) return false;
+                    var d = document.createElement('div');
+                    d.className = 'lc-tb';
+                    d.style.cssText = 'display:flex;gap:4px;padding:2px 0 6px;margin-bottom:3px;border-bottom:1px solid #ccc';
+                    d.innerHTML =
+                        '<button onclick="document.querySelectorAll(\\'.leaflet-control-layers-overlays input\\').forEach(function(c){if(!c.checked)c.click()})"'
+                        + ' style="flex:1;font-size:11px;padding:2px 5px;cursor:pointer;border:1px solid #aaa;border-radius:3px;background:#f0f0f0">All</button>'
+                        + '<button onclick="document.querySelectorAll(\\'.leaflet-control-layers-overlays input\\').forEach(function(c){if(c.checked)c.click()})"'
+                        + ' style="flex:1;font-size:11px;padding:2px 5px;cursor:pointer;border:1px solid #aaa;border-radius:3px;background:#f0f0f0">None</button>';
+                    ov.insertBefore(d, ov.firstChild);
+                    return true;
+                }
+                var n = 0, t = setInterval(function () { if (tryAdd() || ++n > 40) clearInterval(t); }, 250);
+            })();
+            {% endmacro %}
+        """)
+
+
 def get_icon(category: str, day_idx: int) -> folium.Icon:
     icon_name = CATEGORY_ICONS.get(category.lower(), CATEGORY_ICONS["default"])
     color = ICON_COLORS[day_idx % len(ICON_COLORS)]
@@ -32,18 +61,6 @@ def get_icon(category: str, day_idx: int) -> folium.Icon:
 
 
 def build_map(days: list[dict], center: list = None) -> folium.Map:
-    """
-    Build a Folium map from itinerary days.
-
-    Each day: {
-        "day": str,
-        "stops": [{
-            "name": str, "lat": float, "lon": float,
-            "start": str, "end": str, "notes": str,
-            "category": str  # optional
-        }]
-    }
-    """
     # Compute center from all valid coordinates
     all_lats = [s["lat"] for d in days for s in d["stops"] if s.get("lat")]
     all_lons = [s["lon"] for d in days for s in d["stops"] if s.get("lon")]
@@ -59,10 +76,8 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
         tiles="OpenStreetMap",
     )
 
-    # Add a fullscreen button
     plugins.Fullscreen().add_to(m)
 
-    # Layer control — one layer per day
     for day_idx, day in enumerate(days):
         day_label = day.get("day", f"Day {day_idx + 1}")
         color = DAY_COLORS[day_idx % len(DAY_COLORS)]
@@ -70,7 +85,6 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
         feature_group = folium.FeatureGroup(name=f"📅 {day_label}")
         valid_stops = [s for s in day["stops"] if s.get("lat") and s.get("lon")]
 
-        # Draw route line between stops
         if len(valid_stops) >= 2:
             route_coords = [[s["lat"], s["lon"]] for s in valid_stops]
             folium.PolyLine(
@@ -82,12 +96,10 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                 tooltip=day_label,
             ).add_to(feature_group)
 
-        # Draw markers for each stop
         for stop_idx, stop in enumerate(valid_stops):
             category = stop.get("category", "default")
             icon_name = CATEGORY_ICONS.get(category.lower(), CATEGORY_ICONS["default"])
 
-            # Build popup HTML
             time_str = ""
             if stop.get("start") and stop.get("end"):
                 time_str = f"<b>⏰ {stop['start']} – {stop['end']}</b><br>"
@@ -120,7 +132,6 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                 ),
             ).add_to(feature_group)
 
-            # Number circle label on map
             folium.Marker(
                 location=[stop["lat"], stop["lon"]],
                 icon=folium.DivIcon(
@@ -141,4 +152,5 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
         feature_group.add_to(m)
 
     folium.LayerControl(collapsed=False).add_to(m)
+    LayerToggle().add_to(m)
     return m
