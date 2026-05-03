@@ -1,0 +1,27 @@
+day,order,name,start,end,notes,category,lat,lon
+"Rabu, 29 Jul — Hoi An",1,Da Nang International Airport,10:50,12:00,Landing + imigrasi,airport,16.057,108.203
+"Rabu, 29 Jul — Hoi An",2,Cam Thanh Coconut Village,14:30,16:00,Coconut Basket Boat,attraction,15.870,108.375
+"Rabu, 29 Jul — Hoi An",3,Hoi An Old Town,16:00,17:30,Explore + sepatu kulit,attraction,15.877,108.329
+"Rabu, 29 Jul — Hoi An",4,Thu Bon River Lantern Boat,17:30,19:00,Sunset lantern boat ride,attraction,15.875,108.327
+"Rabu, 29 Jul — Hoi An",5,Thia Go Restaurant,19:00,21:00,"Michelin Star, Muslim Friendly",food,16.053,108.242
+"Kamis, 30 Jul — Ba Na Hills",1,Ba Na Hills,09:00,15:00,Full day theme park,attraction,15.995,107.996
+"Kamis, 30 Jul — Ba Na Hills",2,Go! Supermarket Da Nang,17:00,19:00,Belanja oleh-oleh,market,15.837,108.276
+"Kamis, 30 Jul — Ba Na Hills",3,Nam Danh Seafood,19:00,21:00,Dinner seafood My Khe,food,16.102,108.253
+"Kamis, 30 Jul — Ba Na Hills",4,Dragon Bridge,21:00,21:30,Opsional — fire show hanya weekend,attraction,16.061,108.228
+"Jumat, 31 Jul — Da Nang → HCM",1,Bac My An Market,06:00,07:00,Pasar traditional pagi,market,16.042,108.242
+"Jumat, 31 Jul — Da Nang → HCM",2,My Khe Beach,07:00,07:30,Morning walk,beach,16.062,108.247
+"Jumat, 31 Jul — Da Nang → HCM",3,Da Nang Airport,12:00,14:00,Flight ke Ho Chi Minh,airport,16.057,108.203
+"Jumat, 31 Jul — Da Nang → HCM",4,Nguyen Hue Walking Street,20:15,21:15,Malam pertama di HCM,attraction,10.774,106.704
+"Jumat, 31 Jul — Da Nang → HCM",5,Bui Vien Walking Street,21:15,22:00,Nightlife HCM,nightlife,10.767,106.694
+"Sabtu, 1 Agu — Ho Chi Minh",1,Ben Thanh Market,07:30,08:30,Sarapan + souvenir,market,10.773,106.698
+"Sabtu, 1 Agu — Ho Chi Minh",2,Turtle Lake,08:30,09:00,Landmark District 3,attraction,10.783,106.696
+"Sabtu, 1 Agu — Ho Chi Minh",3,Tan Dinh Church (Gereja Pink),09:00,09:30,Sedang renovasi per 2026,attraction,10.788,106.691
+"Sabtu, 1 Agu — Ho Chi Minh",4,War Remnants Museum,09:30,11:30,"Buka 7:30-17:30, alokasikan 2+ jam",museum,10.780,106.692
+"Sabtu, 1 Agu — Ho Chi Minh",5,Notre Dame Cathedral Saigon,13:30,14:00,"Sedang renovasi, foto eksterior",attraction,10.780,106.699
+"Sabtu, 1 Agu — Ho Chi Minh",6,Nguyen Hue Pedestrian Plaza,14:00,17:00,Explore District 1,attraction,10.774,106.704
+"Sabtu, 1 Agu — Ho Chi Minh",7,Bui Vien Walking Street,21:00,22:00,Malam di Bui Vien,nightlife,10.767,106.694
+"Minggu, 2 Agu — Cholon + Thao Dien",1,Thien Hau Pagoda (Cholon),08:00,10:30,Chinatown District 5,attraction,10.753,106.661
+"Minggu, 2 Agu — Cholon + Thao Dien",2,Ben Thanh Market,11:00,12:00,Lunch area,market,10.773,106.698
+"Minggu, 2 Agu — Cholon + Thao Dien",3,Notre Dame Cathedral Saigon,12:00,14:00,Sisa eksplor District 1/3,attraction,10.780,106.699
+"Minggu, 2 Agu — Cholon + Thao Dien",4,Bui Vien Walking Street,20:00,21:00,Malam terakhir Vietnam,nightlife,10.767,106.694
+"Senin, 3 Agu — Pulang",1,Tan Son Nhat Airport,07:00,09:30,Flight 9:30 ke Jakarta — keluar hotel jam 6!,airport,10.817,106.657
