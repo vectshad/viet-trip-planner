@@ -1,0 +1,266 @@
+[
+  {
+    "day": "Rabu, 29 Jul — Hoi An",
+    "stops": [
+      {
+        "name": "Da Nang International Airport",
+        "start": "10:50",
+        "end": "12:00",
+        "notes": "Landing + imigrasi",
+        "category": "airport",
+        "lat": 16.057,
+        "lon": 108.203
+      },
+      {
+        "name": "Cam Thanh Coconut Village",
+        "start": "14:30",
+        "end": "16:00",
+        "notes": "Coconut Basket Boat",
+        "category": "attraction",
+        "lat": 15.870,
+        "lon": 108.375
+      },
+      {
+        "name": "Hoi An Old Town",
+        "start": "16:00",
+        "end": "17:30",
+        "notes": "Explore + sepatu kulit",
+        "category": "attraction",
+        "lat": 15.877,
+        "lon": 108.329
+      },
+      {
+        "name": "Thu Bon River Lantern Boat",
+        "start": "17:30",
+        "end": "19:00",
+        "notes": "Sunset lantern boat ride",
+        "category": "attraction",
+        "lat": 15.875,
+        "lon": 108.327
+      },
+      {
+        "name": "Thia Go Restaurant",
+        "start": "19:00",
+        "end": "21:00",
+        "notes": "Michelin Star, Muslim Friendly",
+        "category": "food",
+        "lat": 16.053,
+        "lon": 108.242
+      }
+    ]
+  },
+  {
+    "day": "Kamis, 30 Jul — Ba Na Hills",
+    "stops": [
+      {
+        "name": "Ba Na Hills",
+        "start": "09:00",
+        "end": "15:00",
+        "notes": "Full day theme park",
+        "category": "attraction",
+        "lat": 15.995,
+        "lon": 107.996
+      },
+      {
+        "name": "Go! Supermarket Da Nang",
+        "start": "17:00",
+        "end": "19:00",
+        "notes": "Belanja oleh-oleh",
+        "category": "market",
+        "lat": 15.837,
+        "lon": 108.276
+      },
+      {
+        "name": "Nam Danh Seafood",
+        "start": "19:00",
+        "end": "21:00",
+        "notes": "Dinner seafood My Khe",
+        "category": "food",
+        "lat": 16.102,
+        "lon": 108.253
+      },
+      {
+        "name": "Dragon Bridge",
+        "start": "21:00",
+        "end": "21:30",
+        "notes": "Opsional — fire show hanya weekend",
+        "category": "attraction",
+        "lat": 16.061,
+        "lon": 108.228
+      }
+    ]
+  },
+  {
+    "day": "Jumat, 31 Jul — Da Nang → HCM",
+    "stops": [
+      {
+        "name": "Bac My An Market",
+        "start": "06:00",
+        "end": "07:00",
+        "notes": "Pasar traditional pagi",
+        "category": "market",
+        "lat": 16.042,
+        "lon": 108.242
+      },
+      {
+        "name": "My Khe Beach",
+        "start": "07:00",
+        "end": "07:30",
+        "notes": "Morning walk",
+        "category": "beach",
+        "lat": 16.062,
+        "lon": 108.247
+      },
+      {
+        "name": "Da Nang Airport",
+        "start": "12:00",
+        "end": "14:00",
+        "notes": "Flight ke Ho Chi Minh",
+        "category": "airport",
+        "lat": 16.057,
+        "lon": 108.203
+      },
+      {
+        "name": "Nguyen Hue Walking Street",
+        "start": "20:15",
+        "end": "21:15",
+        "notes": "Malam pertama di HCM",
+        "category": "attraction",
+        "lat": 10.774,
+        "lon": 106.704
+      },
+      {
+        "name": "Bui Vien Walking Street",
+        "start": "21:15",
+        "end": "22:00",
+        "notes": "Nightlife HCM",
+        "category": "nightlife",
+        "lat": 10.767,
+        "lon": 106.694
+      }
+    ]
+  },
+  {
+    "day": "Sabtu, 1 Agu — Ho Chi Minh",
+    "stops": [
+      {
+        "name": "Ben Thanh Market",
+        "start": "07:30",
+        "end": "08:30",
+        "notes": "Sarapan + souvenir",
+        "category": "market",
+        "lat": 10.773,
+        "lon": 106.698
+      },
+      {
+        "name": "Turtle Lake",
+        "start": "08:30",
+        "end": "09:00",
+        "notes": "Landmark District 3",
+        "category": "attraction",
+        "lat": 10.783,
+        "lon": 106.696
+      },
+      {
+        "name": "Tan Dinh Church (Gereja Pink)",
+        "start": "09:00",
+        "end": "09:30",
+        "notes": "Sedang renovasi per 2026",
+        "category": "attraction",
+        "lat": 10.788,
+        "lon": 106.691
+      },
+      {
+        "name": "War Remnants Museum",
+        "start": "09:30",
+        "end": "11:30",
+        "notes": "Buka 7:30-17:30, alokasikan 2+ jam",
+        "category": "museum",
+        "lat": 10.780,
+        "lon": 106.692
+      },
+      {
+        "name": "Notre Dame Cathedral Saigon",
+        "start": "13:30",
+        "end": "14:00",
+        "notes": "Sedang renovasi, foto eksterior",
+        "category": "attraction",
+        "lat": 10.780,
+        "lon": 106.699
+      },
+      {
+        "name": "Nguyen Hue Pedestrian Plaza",
+        "start": "14:00",
+        "end": "17:00",
+        "notes": "Explore District 1",
+        "category": "attraction",
+        "lat": 10.774,
+        "lon": 106.704
+      },
+      {
+        "name": "Bui Vien Walking Street",
+        "start": "21:00",
+        "end": "22:00",
+        "notes": "Malam di Bui Vien",
+        "category": "nightlife",
+        "lat": 10.767,
+        "lon": 106.694
+      }
+    ]
+  },
+  {
+    "day": "Minggu, 2 Agu — Cholon + Thao Dien",
+    "stops": [
+      {
+        "name": "Thien Hau Pagoda (Cholon)",
+        "start": "08:00",
+        "end": "10:30",
+        "notes": "Chinatown District 5",
+        "category": "attraction",
+        "lat": 10.753,
+        "lon": 106.661
+      },
+      {
+        "name": "Ben Thanh Market",
+        "start": "11:00",
+        "end": "12:00",
+        "notes": "Lunch area",
+        "category": "market",
+        "lat": 10.773,
+        "lon": 106.698
+      },
+      {
+        "name": "Notre Dame Cathedral Saigon",
+        "start": "12:00",
+        "end": "14:00",
+        "notes": "Sisa eksplor District 1/3",
+        "category": "attraction",
+        "lat": 10.780,
+        "lon": 106.699
+      },
+      {
+        "name": "Bui Vien Walking Street",
+        "start": "20:00",
+        "end": "21:00",
+        "notes": "Malam terakhir Vietnam",
+        "category": "nightlife",
+        "lat": 10.767,
+        "lon": 106.694
+      }
+    ]
+  },
+  {
+    "day": "Senin, 3 Agu — Pulang",
+    "stops": [
+      {
+        "name": "Tan Son Nhat Airport",
+        "start": "07:00",
+        "end": "09:30",
+        "notes": "Flight 9:30 ke Jakarta — keluar hotel jam 6!",
+        "category": "airport",
+        "lat": 10.817,
+        "lon": 106.657
+      }
+    ]
+  }
+]
