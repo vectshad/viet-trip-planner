@@ -12,6 +12,15 @@
         "lon": 108.203
       },
       {
+        "name": "Stay Da Nang — 59 Nguyen Tat Thanh",
+        "start": "12:30",
+        "end": "14:00",
+        "notes": "Accommodation / check-in",
+        "category": "hotel",
+        "lat": 16.0828493,
+        "lon": 108.2129368
+      },
+      {
         "name": "Cam Thanh Coconut Village",
         "start": "14:30",
         "end": "16:00",
@@ -119,6 +128,15 @@
         "category": "airport",
         "lat": 16.057,
         "lon": 108.203
+      },
+      {
+        "name": "Stay HCM — 359/1 Le Van Sy",
+        "start": "15:00",
+        "end": "20:00",
+        "notes": "Accommodation / check-in",
+        "category": "hotel",
+        "lat": 10.788235,
+        "lon": 106.676557
       },
       {
         "name": "Nguyen Hue Walking Street",
