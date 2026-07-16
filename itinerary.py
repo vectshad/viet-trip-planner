@@ -251,28 +251,38 @@ elif tab == "📅 Timeline":
             # written) — show live suggestions right here instead of a placeholder,
             # so picking one doesn't require detouring into Edit Itinerary first.
             if "belum dipilih" in stop["name"] and city:
-                anchor_lat, anchor_lon = find_anchor(day, stop_idx)
-                suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon, limit=4)
+                anchor_lat, anchor_lon, anchor_name = find_anchor(day, stop_idx)
+                suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon)
                 if suggestions:
-                    item_parts = []
-                    for s in suggestions:
+                    def render_item(s):
                         rating_str = f' · ⭐{s["rating"]}' if s["rating"] else ""
                         dist_str = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
-                        item_parts.append(
+                        return (
                             f'<div style="font-size:12.5px;color:#444;padding:2px 0">'
                             f'• {s["name"]}{rating_str} · {dist_str} · '
                             f'<a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
                         )
-                    items = "".join(item_parts)
+
+                    dist_note = f" · jarak diukur dari '{anchor_name}'" if anchor_name else ""
+                    VISIBLE = 5
+                    visible_items = "".join(render_item(s) for s in suggestions[:VISIBLE])
                     st.markdown(
-                        '<div style="margin:-4px 0 8px 14px;padding:8px 12px;'
+                        '<div style="margin:-4px 0 4px 14px;padding:8px 12px;'
                         'background:#fafbfc;border-left:3px dashed #ccc;border-radius:0 6px 6px 0">'
                         '<div style="font-size:11px;color:#888;text-transform:uppercase;'
-                        'letter-spacing:.04em;margin-bottom:3px">💡 Suggested nearby — '
-                        'pilih & kunci di tab Edit Itinerary</div>'
-                        f'{items}</div>',
+                        f'letter-spacing:.04em;margin-bottom:3px">💡 Suggested nearby '
+                        f'({len(suggestions)} options){dist_note} — pilih & kunci di tab Edit Itinerary</div>'
+                        f'{visible_items}</div>',
                         unsafe_allow_html=True,
                     )
+                    if len(suggestions) > VISIBLE:
+                        with st.expander(f"Lihat {len(suggestions) - VISIBLE} opsi lainnya", expanded=False):
+                            rest_items = "".join(render_item(s) for s in suggestions[VISIBLE:])
+                            st.markdown(
+                                '<div style="padding:8px 12px;background:#fafbfc;'
+                                'border-radius:6px">' + rest_items + '</div>',
+                                unsafe_allow_html=True,
+                            )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -390,13 +400,16 @@ elif tab == "✏️ Edit Itinerary":
                         index=cat_options.index(category) if category in cat_options else 0,
                         key=f"sugg_cat_{day_idx}_{i}",
                     )
-                    anchor_lat, anchor_lon = find_anchor(day, i)
+                    anchor_lat, anchor_lon, anchor_name = find_anchor(day, i)
                     suggestions = suggest_places(city, sugg_cat, anchor_lat, anchor_lon)
                     if not suggestions:
                         st.caption(f"No {sugg_cat} places found in {city} in the Popular Places data.")
                     else:
                         if anchor_lat is None:
                             st.caption("No nearby stop with coordinates yet — ranked by rating instead of distance.")
+                        else:
+                            st.caption(f"Distance below is measured from the nearest scheduled stop: **{anchor_name}** (not always the hotel).")
+                        st.caption(f"{len(suggestions)} option(s) found.")
                         for s_idx, s in enumerate(suggestions):
                             row = st.columns([3, 1.2, 1, 1])
                             label = s["name"] + (f" · {s['district']}" if s["district"] else "")

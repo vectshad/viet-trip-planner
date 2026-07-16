@@ -74,15 +74,18 @@ def infer_city(day: dict) -> str | None:
 def find_anchor(day: dict, stop_idx: int):
     """Nearest-in-schedule stop with coordinates — checked walking backward
     then forward from stop_idx — used as the 'stay near this' reference
-    point for suggestions. (lat, lon) or (None, None)."""
+    point for suggestions. Returns (lat, lon, stop_name), or (None, None,
+    None). The name is returned so callers can label distances with what
+    they're actually measured from (an adjacent stop, not necessarily the
+    hotel) instead of a bare, ambiguous "X km"."""
     stops = day["stops"]
     for j in range(stop_idx - 1, -1, -1):
         if stops[j].get("lat") and stops[j].get("lon"):
-            return stops[j]["lat"], stops[j]["lon"]
+            return stops[j]["lat"], stops[j]["lon"], stops[j]["name"]
     for j in range(stop_idx + 1, len(stops)):
         if stops[j].get("lat") and stops[j].get("lon"):
-            return stops[j]["lat"], stops[j]["lon"]
-    return None, None
+            return stops[j]["lat"], stops[j]["lon"], stops[j]["name"]
+    return None, None, None
 
 
 def load_places() -> pd.DataFrame:
@@ -93,10 +96,12 @@ def load_places() -> pd.DataFrame:
     return df
 
 
-def suggest_places(city: str, category: str, anchor_lat=None, anchor_lon=None, limit: int = 8) -> list[dict]:
-    """Up to `limit` candidates for a stop: same city, same category
-    (mapped via CATEGORY_MAP), ranked nearest-to-anchor first when an
-    anchor point is available, else by rating."""
+def suggest_places(city: str, category: str, anchor_lat=None, anchor_lon=None, limit: int | None = None) -> list[dict]:
+    """Candidates for a stop: same city, same category (mapped via
+    CATEGORY_MAP), ranked nearest-to-anchor first when an anchor point is
+    available, else by rating. Returns every match by default (limit=None)
+    — same-category-but-far places are never excluded, only ranked lower;
+    pass `limit` to cap the count instead."""
     csv_category = CATEGORY_MAP.get(category, category)
     df = load_places()
     matches = df[(df["City"] == city) & (df["Category"] == csv_category)].copy()
@@ -114,11 +119,23 @@ def suggest_places(city: str, category: str, anchor_lat=None, anchor_lon=None, l
     else:
         matches = matches.sort_values("rating_sort", ascending=False, na_position="last")
 
+    # Some places were saved from more than one TikTok post, so the same real
+    # place can appear as two CSV rows that only differ by leftover OCR noise
+    # (e.g. "Con Market" vs "Con Market 7") — same coordinates, same place.
+    # Dedupe on the cleaned name (within a city, a collision is essentially
+    # always this, not two different real places sharing a generic name).
     results = []
-    for _, r in matches.head(limit).iterrows():
+    seen_names = set()
+    for _, r in matches.iterrows():
+        name = clean_name(r["Name"])
+        key = name.lower()
+        if key in seen_names:
+            continue
+        seen_names.add(key)
+
         dist = r["dist_km"] if has_anchor else None
         results.append({
-            "name": clean_name(r["Name"]),
+            "name": name,
             "district": r["District"],
             "rating": r["Rating"],
             "lat": r["lat_f"] if pd.notna(r["lat_f"]) else None,
@@ -126,4 +143,6 @@ def suggest_places(city: str, category: str, anchor_lat=None, anchor_lon=None, l
             "dist_km": None if dist is None or dist == float("inf") else dist,
             "maps_url": build_maps_url(r["Name"], r["District"], city),
         })
+        if limit is not None and len(results) >= limit:
+            break
     return results
