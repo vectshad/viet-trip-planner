@@ -7,10 +7,34 @@ see Place Finder for those.
 import pathlib
 import re
 import urllib.parse
+import folium
 import pandas as pd
 import streamlit as st
+from folium.plugins import MarkerCluster
+from streamlit_folium import st_folium
 
 ROOT = pathlib.Path(__file__).parent.parent
+
+# folium.Icon only accepts this fixed palette — not arbitrary hex — so each
+# Popular Places category gets a named color + a Font Awesome glyph.
+CATEGORY_MARKER = {
+    "Food & Drink": ("green", "cutlery"),
+    "Attraction": ("red", "star"),
+    "Accommodation": ("purple", "home"),
+    "Activity": ("darkgreen", "bolt"),
+    "Shopping": ("orange", "shopping-cart"),
+    "Transport": ("gray", "car"),
+    "General": ("lightgray", "map-marker"),
+}
+
+# Rough city centers for the map's initial view — not exact, just enough to
+# frame the right area before markers/clustering take over.
+CITY_MAP_CENTER = {
+    "Da Nang": (16.047, 108.220),
+    "Hoi An": (15.880, 108.330),
+    "Ba Na Hills": (15.996, 107.989),
+    "Ho Chi Minh": (10.776, 106.700),
+}
 
 # Trailing OCR icon-glyph noise on names (e.g. "IconSphere Hotel 4", "...kí") —
 # stripped only for the maps search query, the displayed Name is left as-is.
@@ -146,6 +170,43 @@ for tab, city in zip(tabs, cities_present):
         if filtered.empty:
             st.info("No places match these filters.")
             continue
+
+        # Map view — plots whatever the Category/Search filters above have
+        # already narrowed down to, so it declutters itself instead of an
+        # arbitrary per-category cap; MarkerCluster groups nearby pins until
+        # you zoom in for dense spots.
+        if st.toggle("🗺️ Show map", key=f"pp_map_toggle_{city}"):
+            mappable = filtered[(filtered["Lat"] != "") & (filtered["Lon"] != "")]
+            if mappable.empty:
+                st.info("None of the currently filtered places have coordinates yet.")
+            else:
+                if len(mappable) < len(filtered):
+                    st.caption(
+                        f"Showing {len(mappable)} of {len(filtered)} filtered places that have "
+                        "coordinates — the rest haven't been geocoded yet."
+                    )
+                m = folium.Map(
+                    location=CITY_MAP_CENTER.get(city, (16.0, 107.5)),
+                    zoom_start=13,
+                    tiles="CartoDB positron",
+                )
+                cluster = MarkerCluster().add_to(m)
+                for _, r in mappable.iterrows():
+                    color, glyph = CATEGORY_MARKER.get(r["Category"], CATEGORY_MARKER["General"])
+                    popup_html = (
+                        f"<b>{r['Name']}</b><br>"
+                        f"<small>{r['Category']}"
+                        + (f" · ⭐{r['Rating']}" if r["Rating"] else "")
+                        + f"</small><br>"
+                        f'<a href="{build_maps_url(r["Name"], r["District"], city)}" target="_blank">📍 Open in Maps</a>'
+                    )
+                    folium.Marker(
+                        [float(r["Lat"]), float(r["Lon"])],
+                        tooltip=r["Name"],
+                        popup=folium.Popup(popup_html, max_width=250),
+                        icon=folium.Icon(color=color, icon=glyph, prefix="fa"),
+                    ).add_to(cluster)
+                st_folium(m, width="100%", height=480, key=f"pp_map_{city}", returned_objects=[])
 
         for cat in [c for c in CATEGORY_ORDER if c in filtered["Category"].unique()]:
             cat_df = filtered[filtered["Category"] == cat].sort_values(
