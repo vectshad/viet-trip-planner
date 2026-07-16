@@ -8,7 +8,8 @@ st.set_page_config(
 )
 
 pg = st.navigation([
-    st.Page("itinerary.py",          title="Itinerary",    icon="🗺️"),
-    st.Page("pages/place_finder.py", title="Place Finder", icon="🔍"),
+    st.Page("itinerary.py",           title="Itinerary",      icon="🗺️"),
+    st.Page("pages/place_finder.py",  title="Place Finder",   icon="🔍"),
+    st.Page("pages/popular_places.py", title="Popular Places", icon="📊"),
 ])
 pg.run()
