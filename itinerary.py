@@ -15,6 +15,7 @@ from places import search_place
 from map_builder import build_map, DAY_COLORS
 from logic_checker import check_itinerary
 from storage import load_itinerary, save_itinerary, is_configured
+from place_suggester import suggest_places, CATEGORY_MAP, infer_city, find_anchor
 
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -224,7 +225,9 @@ elif tab == "📅 Timeline":
             unsafe_allow_html=True,
         )
 
-        for stop in day["stops"]:
+        city = infer_city(day)
+
+        for stop_idx, stop in enumerate(day["stops"]):
             cat_color = category_colors.get(stop.get("category", "default"), "#888780")
             time_str = ""
             if stop.get("start") and stop.get("end"):
@@ -243,6 +246,33 @@ elif tab == "📅 Timeline":
                 f'</div>',
                 unsafe_allow_html=True,
             )
+
+            # Undecided stop (name flagged "belum dipilih" when the itinerary was
+            # written) — show live suggestions right here instead of a placeholder,
+            # so picking one doesn't require detouring into Edit Itinerary first.
+            if "belum dipilih" in stop["name"] and city:
+                anchor_lat, anchor_lon = find_anchor(day, stop_idx)
+                suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon, limit=4)
+                if suggestions:
+                    item_parts = []
+                    for s in suggestions:
+                        rating_str = f' · ⭐{s["rating"]}' if s["rating"] else ""
+                        dist_str = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
+                        item_parts.append(
+                            f'<div style="font-size:12.5px;color:#444;padding:2px 0">'
+                            f'• {s["name"]}{rating_str} · {dist_str} · '
+                            f'<a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
+                        )
+                    items = "".join(item_parts)
+                    st.markdown(
+                        '<div style="margin:-4px 0 8px 14px;padding:8px 12px;'
+                        'background:#fafbfc;border-left:3px dashed #ccc;border-radius:0 6px 6px 0">'
+                        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
+                        'letter-spacing:.04em;margin-bottom:3px">💡 Suggested nearby — '
+                        'pilih & kunci di tab Edit Itinerary</div>'
+                        f'{items}</div>',
+                        unsafe_allow_html=True,
+                    )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -342,6 +372,44 @@ elif tab == "✏️ Edit Itinerary":
                         st.info(f"Lat: {result['lat']}, Lon: {result['lon']} — update the fields above manually.")
                     else:
                         st.warning("Place not found. Try a more specific name.")
+
+            # Suggest from Popular Places — for undecided stops, or just to swap
+            # a fixed pick for a better-rated / closer option in the same category.
+            with st.expander("💡 Suggest a place from Popular Places", expanded=False):
+                city = infer_city(day)
+                if not city:
+                    st.caption(
+                        "Can't tell which city this day is in yet — no other stop "
+                        "in this day has coordinates to infer from."
+                    )
+                else:
+                    cat_options = list(CATEGORY_MAP.keys())
+                    sugg_cat = st.selectbox(
+                        "Category to search",
+                        cat_options,
+                        index=cat_options.index(category) if category in cat_options else 0,
+                        key=f"sugg_cat_{day_idx}_{i}",
+                    )
+                    anchor_lat, anchor_lon = find_anchor(day, i)
+                    suggestions = suggest_places(city, sugg_cat, anchor_lat, anchor_lon)
+                    if not suggestions:
+                        st.caption(f"No {sugg_cat} places found in {city} in the Popular Places data.")
+                    else:
+                        if anchor_lat is None:
+                            st.caption("No nearby stop with coordinates yet — ranked by rating instead of distance.")
+                        for s_idx, s in enumerate(suggestions):
+                            row = st.columns([3, 1.2, 1, 1])
+                            label = s["name"] + (f" · {s['district']}" if s["district"] else "")
+                            row[0].markdown(label + (f" ⭐{s['rating']}" if s["rating"] else ""))
+                            row[1].caption(f"{s['dist_km']:.1f} km away" if s["dist_km"] is not None else "—")
+                            row[2].markdown(f"[📍 Maps]({s['maps_url']})")
+                            if row[3].button("Use this", key=f"use_{day_idx}_{i}_{s_idx}"):
+                                st.session_state[f"name_{day_idx}_{i}"] = s["name"]
+                                st.session_state[f"cat_{day_idx}_{i}"] = sugg_cat
+                                if s["lat"] is not None:
+                                    st.session_state[f"lat_{day_idx}_{i}"] = s["lat"]
+                                    st.session_state[f"lon_{day_idx}_{i}"] = s["lon"]
+                                st.rerun()
 
             updated_stops.append({
                 "name": name, "start": start, "end": end,
