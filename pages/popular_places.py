@@ -22,6 +22,13 @@ CATEGORY_ORDER = [
     "Shopping", "Transport", "General",
 ]
 
+# Same stay points as itinerary.json — distance/directions only make sense
+# for the two cities you're actually staying in.
+STAY_COORDS = {
+    "Da Nang": (16.0828493, 108.2129368),      # Stay Da Nang — 59 Nguyen Tat Thanh
+    "Ho Chi Minh": (10.788235, 106.676557),    # Stay HCM — 359/1 Le Van Sy
+}
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -39,8 +46,12 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 @st.cache_data
 def load_places() -> pd.DataFrame:
     df = pd.read_csv(ROOT / "data" / "tiktok_places.csv", dtype=str).fillna("")
+    for col in ["Lat", "Lon", "Distance from Stay (km)"]:
+        if col not in df.columns:
+            df[col] = ""  # not geocoded yet — run geocode_places.py to fill these in
     df["rating_sort"] = pd.to_numeric(df["Rating"], errors="coerce")
     df["save_sort"] = df["Save Count"].apply(_parse_count)
+    df["stay_dist_sort"] = pd.to_numeric(df["Distance from Stay (km)"], errors="coerce")
     return df
 
 
@@ -70,6 +81,25 @@ def build_maps_url(name: str, district: str, city: str) -> str:
     return "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(query)
 
 
+def build_directions_url(row, city: str) -> str:
+    """Google Maps directions from your stay to this place. Uses precise
+    coordinates when geocode_places.py has filled them in, otherwise falls
+    back to a text-based destination (same query as build_maps_url)."""
+    if city not in STAY_COORDS:
+        return ""
+    origin = f"{STAY_COORDS[city][0]},{STAY_COORDS[city][1]}"
+    if row["Lat"] and row["Lon"]:
+        destination = f"{row['Lat']},{row['Lon']}"
+    else:
+        clean = _NAME_NOISE_RE.sub("", row["Name"].strip())
+        destination = f"{clean}, {row['District']}, {city}, Vietnam" if row["District"] else f"{clean}, {city}, Vietnam"
+    return (
+        "https://www.google.com/maps/dir/?api=1"
+        f"&origin={urllib.parse.quote(origin)}"
+        f"&destination={urllib.parse.quote(destination)}"
+    )
+
+
 df_all = load_places()
 
 st.markdown("## 📊 Popular Places")
@@ -78,6 +108,12 @@ st.caption(
     "captured from saved posts. No description text (TikTok doesn't show captions here); "
     "for narrative tips see the Place Finder page."
 )
+if df_all["stay_dist_sort"].isna().all() and (df_all["City"].isin(STAY_COORDS)).any():
+    st.info(
+        "💡 'From Stay' distance/directions columns (Da Nang & HCM only) will appear once "
+        "`geocode_places.py` has been run — see the script for one-time setup.",
+        icon="💡",
+    )
 
 cities_present = [c for c in CITY_ORDER if c in df_all["City"].unique()]
 tabs = st.tabs(cities_present)
@@ -129,20 +165,32 @@ for tab, city in zip(tabs, cities_present):
                 lambda r: build_maps_url(r["Name"], r["District"], city), axis=1
             )
 
+            column_config = {
+                "Name": st.column_config.TextColumn("Name", width="medium"),
+                "Rating": st.column_config.TextColumn("★", width=50),
+                "Review Count": st.column_config.TextColumn("Reviews", width=70),
+                "District": st.column_config.TextColumn("District", width=110),
+                "Distance": st.column_config.TextColumn("Distance", width=90),
+                "Landmark": st.column_config.TextColumn("From", width="medium"),
+                "Save Count": st.column_config.TextColumn("Saves", width=90),
+                "Maps": st.column_config.LinkColumn("Maps", display_text="📍 Open", width=80),
+            }
+
+            if city in STAY_COORDS:
+                table["From Stay"] = cat_df["stay_dist_sort"].apply(
+                    lambda v: f"{v:.1f} km" if pd.notna(v) else ""
+                )
+                table["Directions"] = cat_df.apply(
+                    lambda r: build_directions_url(r, city), axis=1
+                )
+                column_config["From Stay"] = st.column_config.TextColumn("From Stay", width=90)
+                column_config["Directions"] = st.column_config.LinkColumn(
+                    "Directions", display_text="🧭 Go", width=80
+                )
+
             st.dataframe(
                 table,
                 use_container_width=True,
                 hide_index=True,
-                column_config={
-                    "Name": st.column_config.TextColumn("Name", width="medium"),
-                    "Rating": st.column_config.TextColumn("★", width=50),
-                    "Review Count": st.column_config.TextColumn("Reviews", width=70),
-                    "District": st.column_config.TextColumn("District", width=110),
-                    "Distance": st.column_config.TextColumn("Distance", width=90),
-                    "Landmark": st.column_config.TextColumn("From", width="medium"),
-                    "Save Count": st.column_config.TextColumn("Saves", width=90),
-                    "Maps": st.column_config.LinkColumn(
-                        "Maps", display_text="📍 Open", width=80
-                    ),
-                },
+                column_config=column_config,
             )
