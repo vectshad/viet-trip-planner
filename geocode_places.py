@@ -4,7 +4,18 @@ distance from your stay in each city.
 
 Run this locally (needs real internet — Nominatim isn't reachable from
 some sandboxed dev environments). One-time cost: ~157 places at 1 request/sec
-(Nominatim's rate limit) is roughly 2.5-3 minutes.
+(Nominatim's rate limit) is roughly 2.5-3 minutes, more if many places need
+the fallback retries below.
+
+Each place is tried at up to 3 query specificities (name+district+city, then
+name+city, then name alone) before being marked not-found. Even after all
+three, a meaningful chunk will still fail — Nominatim is OpenStreetMap data,
+which has much sparser coverage of small Vietnamese restaurants/cafes than
+Google's own database. This is expected, not a bug: the Maps and Directions
+links elsewhere in the app already use Google's own search under the hood
+and work fine regardless of whether a place geocodes here — this script only
+affects the "From Stay" distance number and whether Directions links use an
+exact pin vs. a text search.
 
 Setup:
     pip install requests
@@ -51,14 +62,7 @@ def clean_name(name: str) -> str:
     return _NAME_NOISE_RE.sub("", name.strip())
 
 
-def geocode(name: str, district: str, city: str) -> tuple:
-    """Returns (lat, lon) or (None, None) if not found."""
-    query_parts = [clean_name(name)]
-    if district and district != city:
-        query_parts.append(district)
-    query_parts.append(f"{city}, Vietnam")
-    query = ", ".join(query_parts)
-
+def _try_query(query: str) -> tuple:
     params = {"q": query, "format": "json", "limit": 1, "countrycodes": "vn"}
     try:
         resp = requests.get(NOMINATIM_URL, params=params, headers=HEADERS, timeout=10)
@@ -68,6 +72,28 @@ def geocode(name: str, district: str, city: str) -> tuple:
             return float(results[0]["lat"]), float(results[0]["lon"])
     except Exception as e:
         print(f"   ⚠️  Error geocoding '{query}': {e}")
+    return None, None
+
+
+def geocode(name: str, district: str, city: str) -> tuple:
+    """Returns (lat, lon) or (None, None) if not found. Tries a specific
+    query first, then falls back to broader ones — Nominatim (OpenStreetMap)
+    has much sparser coverage of small Vietnamese businesses than Google, so
+    a fair number of places genuinely aren't in its database at any
+    specificity. Each attempt costs one rate-limited request."""
+    name = clean_name(name)
+
+    attempts = [f"{name}, {district}, {city}, Vietnam" if district and district != city else f"{name}, {city}, Vietnam"]
+    if district and district != city:
+        attempts.append(f"{name}, {city}, Vietnam")  # drop district
+    attempts.append(f"{name}, Vietnam")  # name only
+
+    for i, query in enumerate(attempts):
+        lat, lon = _try_query(query)
+        if lat is not None:
+            return lat, lon
+        if i < len(attempts) - 1:
+            time.sleep(RATE_LIMIT_SECONDS)
     return None, None
 
 
