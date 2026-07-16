@@ -3,19 +3,32 @@ Geocode Da Nang / Ho Chi Minh places in tiktok_places.csv and compute
 distance from your stay in each city.
 
 Run this locally (needs real internet — Nominatim isn't reachable from
-some sandboxed dev environments). One-time cost: ~157 places at 1 request/sec
-(Nominatim's rate limit) is roughly 2.5-3 minutes, more if many places need
-the fallback retries below.
+some sandboxed dev environments). One-time cost: ~136 remaining places at
+1 request/sec (Nominatim's rate limit), each tried at up to 5 query
+specificities, so a full run from scratch can take 10-15 minutes.
 
-Each place is tried at up to 3 query specificities (name+district+city, then
-name+city, then name alone) before being marked not-found. Even after all
-three, a meaningful chunk will still fail — Nominatim is OpenStreetMap data,
-which has much sparser coverage of small Vietnamese restaurants/cafes than
-Google's own database. This is expected, not a bug: the Maps and Directions
-links elsewhere in the app already use Google's own search under the hood
-and work fine regardless of whether a place geocodes here — this script only
-affects the "From Stay" distance number and whether Directions links use an
-exact pin vs. a text search.
+Each place is tried, in order: name+city, name+district+city, core-name
+(text before a " - " subtitle)+city, name+Vietnam (city dropped), and
+core-name+Vietnam — stopping at the first candidate that geocodes within
+MAX_DISTANCE_KM of the stay. Name+city (no district) is tried first because
+testing showed including the district in the query — which is how the
+original version of this script queried — actively hurts Nominatim's
+freeform parser far more often than it helps ("X, District 1, Ho Chi Minh
+City, Vietnam" regularly fails where "X, Ho Chi Minh City, Vietnam"
+succeeds). The last two attempts drop the city entirely to maximize recall,
+which risks matching a same-named place in a different city (e.g. a generic
+"Gem Cafe" hit in Hue, 640km from the Ho Chi Minh stay) — every candidate,
+from every attempt, is distance-checked against the stay before being
+accepted so those wrong-city matches are rejected instead of silently
+producing a wrong pin.
+
+Even after all five attempts, a meaningful chunk will still fail —
+Nominatim is OpenStreetMap data, which has much sparser coverage of small
+Vietnamese restaurants/cafes than Google's own database. This is expected,
+not a bug: the Maps and Directions links elsewhere in the app already use
+Google's own search under the hood and work fine regardless of whether a
+place geocodes here — this script only affects the "From Stay" distance
+number and whether Directions links use an exact pin vs. a text search.
 
 Setup:
     pip install requests
@@ -52,27 +65,97 @@ STAY_COORDS = {
     "Ho Chi Minh": (10.788235, 106.676557),    # Stay HCM — 359/1 Le Van Sy
 }
 
+# Nominatim resolves "Ho Chi Minh City" far more reliably than "Ho Chi Minh"
+# alone (tested: bare "Ho Chi Minh" as a city qualifier fails on many
+# otherwise-findable places that succeed once "City" is appended). "Da Nang"
+# needs no such rewrite.
+CITY_QUERY_NAME = {
+    "Da Nang": "Da Nang",
+    "Ho Chi Minh": "Ho Chi Minh City",
+}
+
+# Sanity-check radius around each stay: a geocode result further than this
+# is almost certainly a same-named place in the wrong city (e.g. a "Gem
+# Cafe" match in Hue, 640km away) rather than the actual venue, especially
+# once the fallback attempts below drop the city qualifier entirely. Sized
+# to comfortably cover in-scope outlying areas — Ba Na Hills/Hoa Vang for Da
+# Nang (~35km out), Cu Chi Tunnels for Ho Chi Minh (~35km out) — while still
+# excluding the nearest other major cities.
+MAX_DISTANCE_KM = {
+    "Da Nang": 45,
+    "Ho Chi Minh": 60,
+}
+
 NEW_FIELDS = ["Lat", "Lon", "Distance from Stay (km)"]
 
-# Same trailing OCR icon-glyph noise stripped for maps links in popular_places.py
-_NAME_NOISE_RE = re.compile(r"\s+(k[íi]|WV|V[íÍ]|Z|[47]|</?7?|⁄)$")
+_ELLIPSIS_RE = re.compile(r"\.{2,}")
+# OCR sometimes prefixes a stray "7`"/"4`"-style glyph before the real name.
+_LEADING_NOISE_RE = re.compile(r"^[0-9]{1,2}[`´]\s+")
+# Trailing OCR icon-glyph noise (misread UI icons at the end of each card).
+# Stripped iteratively below since some names carry more than one.
+_NOISE_TOKENS = {
+    "4", "7", "z", "ki", "kí", "wv", "vi", "ví", "v4",
+    "</7", "<7", "</", "<", "⁄", "`",
+}
+
+
+def _strip_trailing_noise(name: str) -> str:
+    tokens = name.split()
+    while tokens:
+        candidate = tokens[-1].strip("\"'“”‘’.,")
+        if candidate.lower() in _NOISE_TOKENS:
+            tokens.pop()
+            continue
+        break
+    return " ".join(tokens)
 
 
 def clean_name(name: str) -> str:
-    return _NAME_NOISE_RE.sub("", name.strip())
+    name = _ELLIPSIS_RE.sub("", name.strip())
+    name = _LEADING_NOISE_RE.sub("", name)
+    return _strip_trailing_noise(name).strip()
 
 
-def _try_query(query: str) -> tuple:
-    params = {"q": query, "format": "json", "limit": 1, "countrycodes": "vn"}
+def core_name(name: str) -> str:
+    """Text before a " - "/" – " subtitle separator, e.g. "Designer Coffee"
+    out of "Designer Coffee - Specialty Vietnamese...". Several OCR'd names
+    were truncated mid-subtitle by the screenshot's card width; querying
+    just the core business name recovers some of those."""
+    for sep in (" - ", " – "):
+        if sep in name:
+            return name.split(sep)[0].strip()
+    return name
+
+
+def _try_query(query: str, limit: int = 3) -> list:
+    params = {"q": query, "format": "json", "limit": limit, "countrycodes": "vn"}
     try:
         resp = requests.get(NOMINATIM_URL, params=params, headers=HEADERS, timeout=10)
         resp.raise_for_status()
-        results = resp.json()
-        if results:
-            return float(results[0]["lat"]), float(results[0]["lon"])
+        return resp.json()
     except Exception as e:
         print(f"   ⚠️  Error geocoding '{query}': {e}")
-    return None, None
+        return []
+
+
+def _build_attempts(name: str, district: str, city_query: str) -> list:
+    core = core_name(name)
+    attempts = [f"{name}, {city_query}, Vietnam"]
+    if district and district != city_query:
+        attempts.append(f"{name}, {district}, {city_query}, Vietnam")
+    if core != name:
+        attempts.append(f"{core}, {city_query}, Vietnam")
+    attempts.append(f"{name}, Vietnam")  # drop city — last resort
+    if core != name:
+        attempts.append(f"{core}, Vietnam")
+
+    seen = set()
+    deduped = []
+    for a in attempts:
+        if a not in seen:
+            seen.add(a)
+            deduped.append(a)
+    return deduped
 
 
 def geocode(name: str, district: str, city: str) -> tuple:
@@ -80,18 +163,24 @@ def geocode(name: str, district: str, city: str) -> tuple:
     query first, then falls back to broader ones — Nominatim (OpenStreetMap)
     has much sparser coverage of small Vietnamese businesses than Google, so
     a fair number of places genuinely aren't in its database at any
-    specificity. Each attempt costs one rate-limited request."""
-    name = clean_name(name)
+    specificity. Each attempt costs one rate-limited request.
 
-    attempts = [f"{name}, {district}, {city}, Vietnam" if district and district != city else f"{name}, {city}, Vietnam"]
-    if district and district != city:
-        attempts.append(f"{name}, {city}, Vietnam")  # drop district
-    attempts.append(f"{name}, Vietnam")  # name only
+    The last two (city-dropping) attempts trade precision for recall, so
+    every candidate — from every attempt — is checked against
+    MAX_DISTANCE_KM before being accepted, rejecting same-named matches in
+    the wrong city instead of silently returning a wrong pin."""
+    name = clean_name(name)
+    city_query = CITY_QUERY_NAME.get(city, city)
+    stay_lat, stay_lon = STAY_COORDS[city]
+    max_dist = MAX_DISTANCE_KM[city]
+
+    attempts = _build_attempts(name, district, city_query)
 
     for i, query in enumerate(attempts):
-        lat, lon = _try_query(query)
-        if lat is not None:
-            return lat, lon
+        for result in _try_query(query):
+            lat, lon = float(result["lat"]), float(result["lon"])
+            if haversine_km(stay_lat, stay_lon, lat, lon) <= max_dist:
+                return lat, lon
         if i < len(attempts) - 1:
             time.sleep(RATE_LIMIT_SECONDS)
     return None, None
