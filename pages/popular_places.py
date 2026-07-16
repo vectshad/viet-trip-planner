@@ -5,10 +5,16 @@ see Place Finder for those.
 """
 
 import pathlib
+import re
+import urllib.parse
 import pandas as pd
 import streamlit as st
 
 ROOT = pathlib.Path(__file__).parent.parent
+
+# Trailing OCR icon-glyph noise on names (e.g. "IconSphere Hotel 4", "...kí") —
+# stripped only for the maps search query, the displayed Name is left as-is.
+_NAME_NOISE_RE = re.compile(r"\s+(k[íi]|WV|V[íÍ]|Z|[47]|</?7?|⁄)$")
 
 CITY_ORDER = ["Da Nang", "Hoi An", "Ba Na Hills", "Ho Chi Minh"]
 CATEGORY_ORDER = [
@@ -49,6 +55,19 @@ def _parse_count(s: str) -> float:
         return float(s)
     except ValueError:
         return -1
+
+
+def build_maps_url(name: str, district: str, city: str) -> str:
+    """Google Maps text-search link — no API key needed, no coordinates required.
+    TikTok's Places panel doesn't expose lat/lon, so this searches by name +
+    location instead of linking straight to a pin."""
+    clean_name = _NAME_NOISE_RE.sub("", name.strip())
+    parts = [clean_name]
+    if district and district != city:
+        parts.append(district)
+    parts.append(f"{city}, Vietnam")
+    query = ", ".join(p for p in parts if p)
+    return "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(query)
 
 
 df_all = load_places()
@@ -106,6 +125,9 @@ for tab, city in zip(tabs, cities_present):
                 lambda r: f'{r["Distance"]} {r["Distance Unit"]}' if r["Distance"] else "", axis=1
             )
             table = table.drop(columns=["Distance Unit"])
+            table["Maps"] = cat_df.apply(
+                lambda r: build_maps_url(r["Name"], r["District"], city), axis=1
+            )
 
             st.dataframe(
                 table,
@@ -119,5 +141,8 @@ for tab, city in zip(tabs, cities_present):
                     "Distance": st.column_config.TextColumn("Distance", width=90),
                     "Landmark": st.column_config.TextColumn("From", width="medium"),
                     "Save Count": st.column_config.TextColumn("Saves", width=90),
+                    "Maps": st.column_config.LinkColumn(
+                        "Maps", display_text="📍 Open", width=80
+                    ),
                 },
             )
