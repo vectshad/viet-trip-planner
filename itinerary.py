@@ -247,44 +247,51 @@ elif tab == "📅 Timeline":
                 unsafe_allow_html=True,
             )
 
-            # Undecided stop (name flagged "belum dipilih" when the itinerary was
-            # written) — show live suggestions right here instead of a placeholder,
-            # so picking one doesn't require detouring into Edit Itinerary first.
-            if "belum dipilih" in stop["name"] and city:
-                anchor_lat, anchor_lon, anchor_name = find_anchor(day, stop_idx)
-                suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon)
-                if suggestions:
-                    def render_item(s):
-                        rating_str = f' · ⭐{s["rating"]}' if s["rating"] else ""
-                        dist_str = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
-                        return (
-                            f'<div style="font-size:12.5px;color:#444;padding:2px 0">'
-                            f'• {s["name"]}{rating_str} · {dist_str} · '
-                            f'<a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
+            # Options from Excel right-side table — show as expandable chooser
+            opts = stop.get("options")
+            if opts:
+                n = len(opts)
+                with st.expander(f"📋 {n} opsi terlampir", expanded=False):
+                    for opt in opts:
+                        name_o = opt.get("name", "")
+                        rate   = opt.get("rate")
+                        rev    = opt.get("reviews")
+                        note_o = opt.get("note") or ""
+                        star_str = f"⭐ {rate}" if rate else ""
+                        rev_str  = f"({int(rev):,} reviews)" if rev else ""
+                        note_str = f" · *{note_o}*" if note_o else ""
+                        maps_q   = name_o.replace(" ", "+")
+                        maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
+                        meta = " · ".join(filter(None, [star_str, rev_str]))
+                        st.markdown(
+                            f"**{name_o}**{note_str}  \n"
+                            f"<small>{meta} &nbsp;·&nbsp; "
+                            f'<a href="{maps_url}" target="_blank">📍 Google Maps</a></small>',
+                            unsafe_allow_html=True,
                         )
 
-                    dist_note = f" · jarak diukur dari '{anchor_name}'" if anchor_name else ""
-                    VISIBLE = 5
-                    visible_items = "".join(render_item(s) for s in suggestions[:VISIBLE])
-                    st.markdown(
-                        '<div style="margin:-4px 0 4px 14px;padding:8px 12px;'
-                        'background:#fafbfc;border-left:3px dashed #ccc;border-radius:0 6px 6px 0">'
-                        '<div style="font-size:11px;color:#888;text-transform:uppercase;'
-                        f'letter-spacing:.04em;margin-bottom:3px">💡 Suggested nearby '
-                        f'({len(suggestions)} options){dist_note} — pilih & kunci di tab Edit Itinerary</div>'
-                        f'{visible_items}</div>',
-                        unsafe_allow_html=True,
-                    )
-                    if len(suggestions) > VISIBLE:
-                        with st.expander(f"Lihat {len(suggestions) - VISIBLE} opsi lainnya", expanded=False):
-                            rest_items = "".join(render_item(s) for s in suggestions[VISIBLE:])
-                            st.markdown(
-                                '<div style="padding:8px 12px;background:#fafbfc;'
-                                'border-radius:6px">' + rest_items + '</div>',
-                                unsafe_allow_html=True,
-                            )
-
         st.markdown("<br>", unsafe_allow_html=True)
+
+    # Belum Masuk Rundown — unscheduled HCM places from the Excel options table
+    _unscheduled = [
+        {"name": "Gian Saigon",                    "rate": 4.7, "reviews": 104,  "note": "Restaurant/Cafe"},
+        {"name": "Film Drugs",                      "rate": 4.9, "reviews": 496,  "note": "Photo/Creative space"},
+        {"name": "Golden Lotus Healing Spa",        "rate": 4.5, "reviews": 2591, "note": "Spa HCM"},
+        {"name": "Tinh Thuc Spa - Spa Quan 3",      "rate": 4.9, "reviews": 830,  "note": "Spa HCM"},
+        {"name": "Rasa Buffet",                     "rate": 4.6, "reviews": 257,  "note": "Buffet restaurant"},
+        {"name": "V Private Gym",                   "rate": 5.0, "reviews": 1166, "note": "Gym"},
+        {"name": "The New Gym",                     "rate": 4.4, "reviews": 1073, "note": "Gym"},
+    ]
+    with st.expander("🗒️ Belum Masuk Rundown — tempat di HCM yang belum dijadwalkan", expanded=False):
+        st.caption("Tempat-tempat ini ada di daftar Excel tapi belum masuk rundown. Tambahkan ke hari HCM jika perlu.")
+        for u in _unscheduled:
+            maps_q = u["name"].replace(" ", "+")
+            maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Ho+Chi+Minh+Vietnam"
+            st.markdown(
+                f"**{u['name']}** · ⭐ {u['rate']} ({u['reviews']:,} reviews) · *{u['note']}*"
+                f" &nbsp;·&nbsp; <a href='{maps_url}' target='_blank'>📍 Maps</a>",
+                unsafe_allow_html=True,
+            )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -385,7 +392,8 @@ elif tab == "✏️ Edit Itinerary":
 
             # Suggest from Popular Places — for undecided stops, or just to swap
             # a fixed pick for a better-rated / closer option in the same category.
-            with st.expander("💡 Suggest a place from Popular Places", expanded=False):
+            show_sugg = st.checkbox("💡 Show place suggestions from Popular Places", key=f"show_sugg_{day_idx}_{i}")
+            if show_sugg:
                 city = infer_city(day)
                 if not city:
                     st.caption(
@@ -424,12 +432,15 @@ elif tab == "✏️ Edit Itinerary":
                                     st.session_state[f"lon_{day_idx}_{i}"] = s["lon"]
                                 st.rerun()
 
-            updated_stops.append({
+            updated_stop = {
                 "name": name, "start": start, "end": end,
                 "notes": notes, "category": category,
                 "lat": lat if lat != 0.0 else None,
                 "lon": lon if lon != 0.0 else None,
-            })
+            }
+            if stop.get("options"):
+                updated_stop["options"] = stop["options"]
+            updated_stops.append(updated_stop)
 
     if st.button("💾 Save Changes", type="primary"):
         st.session_state.days[day_idx]["stops"] = updated_stops
