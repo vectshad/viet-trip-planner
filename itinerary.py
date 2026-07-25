@@ -247,28 +247,37 @@ elif tab == "📅 Timeline":
                 unsafe_allow_html=True,
             )
 
-            # Options from Excel right-side table — show as expandable chooser
+            # Options from Excel right-side table — white card matching stop style
             opts = stop.get("options")
             if opts:
-                n = len(opts)
-                with st.expander(f"📋 {n} opsi terlampir", expanded=False):
-                    for opt in opts:
-                        name_o = opt.get("name", "")
-                        rate   = opt.get("rate")
-                        rev    = opt.get("reviews")
-                        note_o = opt.get("note") or ""
-                        star_str = f"⭐ {rate}" if rate else ""
-                        rev_str  = f"({int(rev):,} reviews)" if rev else ""
-                        note_str = f" · *{note_o}*" if note_o else ""
-                        maps_q   = name_o.replace(" ", "+")
-                        maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
-                        meta = " · ".join(filter(None, [star_str, rev_str]))
-                        st.markdown(
-                            f"**{name_o}**{note_str}  \n"
-                            f"<small>{meta} &nbsp;·&nbsp; "
-                            f'<a href="{maps_url}" target="_blank">📍 Google Maps</a></small>',
-                            unsafe_allow_html=True,
-                        )
+                rows = ""
+                for opt in opts:
+                    name_o   = opt.get("name", "")
+                    rate     = opt.get("rate")
+                    rev      = opt.get("reviews")
+                    note_o   = opt.get("note") or ""
+                    star_str = f"⭐ {rate}" if rate else ""
+                    rev_str  = f"({int(rev):,} reviews)" if rev else ""
+                    note_str = f" &nbsp;·&nbsp; <i style='color:#777'>{note_o}</i>" if note_o else ""
+                    maps_q   = name_o.replace(" ", "+")
+                    maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
+                    meta     = " &nbsp;·&nbsp; ".join(filter(None, [star_str, rev_str]))
+                    rows += (
+                        f'<div style="padding:6px 0;border-bottom:1px solid #eee;color:#1a202c">'
+                        f'<b style="color:#1a202c">{name_o}</b>{note_str}'
+                        f'<br><small style="color:#666">{meta}'
+                        f' &nbsp;·&nbsp; <a href="{maps_url}" target="_blank">📍 Google Maps</a>'
+                        f'</small></div>'
+                    )
+                st.markdown(
+                    f'<details style="background:#f8f9fa;border-left:4px solid {cat_color};'
+                    f'border-radius:0 8px 8px 0;padding:8px 14px;margin:-4px 0 8px 0">'
+                    f'<summary style="cursor:pointer;font-size:12.5px;color:#555;'
+                    f'font-weight:600;list-style:none">&#9654; 📋 {len(opts)} opsi terlampir</summary>'
+                    f'<div style="margin-top:6px">{rows}</div>'
+                    f'</details>',
+                    unsafe_allow_html=True,
+                )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
@@ -282,16 +291,30 @@ elif tab == "📅 Timeline":
         {"name": "V Private Gym",                   "rate": 5.0, "reviews": 1166, "note": "Gym"},
         {"name": "The New Gym",                     "rate": 4.4, "reviews": 1073, "note": "Gym"},
     ]
-    with st.expander("🗒️ Belum Masuk Rundown — tempat di HCM yang belum dijadwalkan", expanded=False):
-        st.caption("Tempat-tempat ini ada di daftar Excel tapi belum masuk rundown. Tambahkan ke hari HCM jika perlu.")
-        for u in _unscheduled:
-            maps_q = u["name"].replace(" ", "+")
-            maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Ho+Chi+Minh+Vietnam"
-            st.markdown(
-                f"**{u['name']}** · ⭐ {u['rate']} ({u['reviews']:,} reviews) · *{u['note']}*"
-                f" &nbsp;·&nbsp; <a href='{maps_url}' target='_blank'>📍 Maps</a>",
-                unsafe_allow_html=True,
-            )
+    unscheduled_rows = ""
+    for u in _unscheduled:
+        maps_q   = u["name"].replace(" ", "+")
+        maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Ho+Chi+Minh+Vietnam"
+        unscheduled_rows += (
+            f'<div style="padding:6px 0;border-bottom:1px solid #eee;color:#1a202c">'
+            f'<b style="color:#1a202c">{u["name"]}</b>'
+            f' &nbsp;·&nbsp; <i style="color:#777">{u["note"]}</i>'
+            f'<br><small style="color:#666">⭐ {u["rate"]} ({u["reviews"]:,} reviews)'
+            f' &nbsp;·&nbsp; <a href="{maps_url}" target="_blank">📍 Google Maps</a>'
+            f'</small></div>'
+        )
+    st.markdown(
+        f'<details style="background:#f8f9fa;border-left:4px solid #888;'
+        f'border-radius:0 8px 8px 0;padding:8px 14px;margin-top:8px">'
+        f'<summary style="cursor:pointer;font-size:12.5px;color:#555;'
+        f'font-weight:600;list-style:none">&#9654; 🗒️ Belum Masuk Rundown — '
+        f'tempat di HCM yang belum dijadwalkan ({len(_unscheduled)})</summary>'
+        f'<div style="margin-top:4px;font-size:12px;color:#888;margin-bottom:6px">'
+        f'Ada di daftar Excel tapi belum masuk rundown — tambahkan ke hari HCM jika perlu.</div>'
+        f'<div>{unscheduled_rows}</div>'
+        f'</details>',
+        unsafe_allow_html=True,
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
