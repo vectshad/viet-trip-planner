@@ -6,46 +6,89 @@
         "name": "Da Nang International Airport",
         "start": "10:50",
         "end": "12:00",
-        "notes": "Landing + imigrasi",
+        "notes": "Landing, imigrasi & ambil bagasi",
         "category": "airport",
         "lat": 16.057,
         "lon": 108.203
       },
       {
-        "name": "Stay Da Nang — 59 Nguyen Tat Thanh",
+        "name": "Lunch Da Nang",
         "start": "12:00",
         "end": "13:30",
-        "notes": "Check-in, drop koper, lunch (opsi lunch belum dipilih)",
+        "notes": "Opsi terlampir — pilih sebelum landing!",
+        "category": "food",
+        "lat": 16.068,
+        "lon": 108.224,
+        "options": [
+          {"name": "Thìa Gỗ Restaurant Da Nang", "rate": 4.7, "reviews": 7491, "note": null},
+          {"name": "Phở Hub", "rate": 4.8, "reviews": 139, "note": null},
+          {"name": "Phở Thìn Hồ Nghinh", "rate": 4.4, "reviews": 1000, "note": null}
+        ]
+      },
+      {
+        "name": "Stay Da Nang — 59 Nguyen Tat Thanh",
+        "start": "13:30",
+        "end": "15:00",
+        "notes": "Check-in & istirahat",
         "category": "hotel",
         "lat": 16.0828493,
         "lon": 108.2129368
       },
       {
-        "name": "Coffee Shop Da Nang (belum dipilih)",
+        "name": "Coffee Shop Da Nang (opsional)",
         "start": "15:00",
-        "end": "17:00",
-        "notes": "Belum ada opsi spesifik di rencana — cek Popular Places > Da Nang > Food & Drink",
+        "end": "16:00",
+        "notes": "Opsional — bisa tukeran urutannya sama pantai",
         "category": "food",
-        "lat": null,
-        "lon": null
+        "lat": 16.0639774,
+        "lon": 108.2228375,
+        "options": [
+          {"name": "Trạm 247 Tea n Coffee - CN Lý Thái Tông", "rate": 4.8, "reviews": 458, "note": "Kalo ngopi dulu baru pantai"},
+          {"name": "Reply 1988 Cafe", "rate": 4.6, "reviews": 997, "note": "Kalo pantai dulu baru ngopi"},
+          {"name": "Tan Coffee", "rate": 4.2, "reviews": 1126, "note": "Kalo pantai dulu baru ngopi"},
+          {"name": "Ge Cafe", "rate": 4.3, "reviews": 1144, "note": "Sebelahan sama Reply 1988 Cafe"}
+        ]
       },
       {
-        "name": "My Khe Beach",
-        "start": "17:00",
-        "end": "19:00",
-        "notes": "Sore di pantai",
+        "name": "Bãi Biển Thiên Đường (My Khe Beach)",
+        "start": "16:00",
+        "end": "17:00",
+        "notes": "Explore pantai sore dekat Airbnb",
         "category": "beach",
         "lat": 16.0756383,
         "lon": 108.246874
       },
       {
-        "name": "Hai San Nam Danh Seafood",
+        "name": "Go! Supermarket Da Nang",
+        "start": "17:00",
+        "end": "19:00",
+        "notes": "Belanja + beli sarapan untuk D2 (Ba Na Hills — bawa bekal, makan siang di sana mahal)",
+        "category": "market",
+        "lat": 16.0667419,
+        "lon": 108.2134262
+      },
+      {
+        "name": "Dinner Seafood Da Nang",
         "start": "19:00",
         "end": "21:00",
-        "notes": "Dinner seafood",
+        "notes": "Opsi terlampir",
         "category": "food",
         "lat": 16.102266,
-        "lon": 108.2534494
+        "lon": 108.2534494,
+        "options": [
+          {"name": "Mộc quán Seafood Đà Nẵng", "rate": 4.8, "reviews": 26965, "note": null},
+          {"name": "CẬU CẢ HẢI SẢN - 955 Nguyễn Tất Thành - Tầng 1", "rate": 4.8, "reviews": 124, "note": null},
+          {"name": "Hai San Nam Danh Seafood", "rate": 4.1, "reviews": 6846, "note": null}
+        ]
+      },
+      {
+        "name": "Chợ Đêm Lê Duẩn (Night Market)",
+        "start": "21:00",
+        "end": "22:00",
+        "notes": "Opsional night market",
+        "category": "market",
+        "lat": 16.068,
+        "lon": 108.222
       }
     ]
   },
@@ -54,48 +97,41 @@
     "stops": [
       {
         "name": "Sun World Ba Na Hills",
-        "start": "09:00",
-        "end": "15:00",
-        "notes": "Full day theme park + Golden Bridge. Paket makan siang pricey — bisa bawa bekal",
+        "start": "08:00",
+        "end": "18:00",
+        "notes": "Full day — berangkat jam 07:00 dari Airbnb. Bawa bekal dari supermarket D1 — makan siang di sana mahal",
         "category": "attraction",
         "lat": 15.9958569,
         "lon": 107.9890712
       },
       {
-        "name": "Go! Supermarket Da Nang",
-        "start": "17:00",
-        "end": "18:00",
-        "notes": "Belanja oleh-oleh makanan di supermarket lokal",
-        "category": "market",
-        "lat": 16.0667419,
-        "lon": 108.2134262
-      },
-      {
-        "name": "Reply 1988 Cafe",
-        "start": "18:00",
-        "end": "19:00",
-        "notes": "Coffee shop rekomendasi",
-        "category": "food",
-        "lat": 16.0639774,
-        "lon": 108.2228375
-      },
-      {
-        "name": "Son Tra Night Market",
+        "name": "Dinner Da Nang",
         "start": "19:00",
-        "end": "22:00",
-        "notes": "Dinner + belanja malam",
-        "category": "market",
+        "end": "21:00",
+        "notes": "Opsi terlampir — juga berlaku untuk Dinner D3",
+        "category": "food",
         "lat": 16.0607314,
-        "lon": 108.2314438
+        "lon": 108.2314438,
+        "options": [
+          {"name": "Sơn Trà Night Market", "rate": 3.6, "reviews": 414, "note": null},
+          {"name": "Pizza 4P's Hoang Van Thu", "rate": 4.8, "reviews": 16057, "note": null},
+          {"name": "Umi Town Izakaya", "rate": 4.8, "reviews": 1910, "note": null},
+          {"name": "I HATE MONDAY DANANG", "rate": 4.8, "reviews": 374, "note": "+ Tempat lucu; - Cukup pricey & kurang otentik"},
+          {"name": "Halal Food Karim", "rate": 4.5, "reviews": 479, "note": null}
+        ]
       },
       {
-        "name": "Dragon Bridge",
-        "start": "22:00",
-        "end": "22:30",
-        "notes": "Opsional — mampir sebelum ke hotel, fire show hanya weekend",
+        "name": "Spa Day",
+        "start": "21:00",
+        "end": "23:00",
+        "notes": "Opsi terlampir",
         "category": "attraction",
-        "lat": 16.0611682,
-        "lon": 108.2278968
+        "lat": 16.061,
+        "lon": 108.228,
+        "options": [
+          {"name": "Hill Spa - Body & Foot Massage", "rate": 4.7, "reviews": 130, "note": null},
+          {"name": "T Spa 196 Trần Phú", "rate": 4.7, "reviews": 140, "note": "Lebih deket dari Son Tra Night Market"}
+        ]
       }
     ]
   },
@@ -103,67 +139,103 @@
     "day": "Jumat, 31 Jul — Hoi An",
     "stops": [
       {
-        "name": "Bac My An Market",
-        "start": "06:00",
-        "end": "07:00",
-        "notes": "Explore pasar tradisional pagi",
-        "category": "market",
-        "lat": 16.0416817,
-        "lon": 108.2424769
-      },
-      {
-        "name": "My Khe Beach",
-        "start": "07:00",
-        "end": "07:30",
-        "notes": "Jalan pagi",
+        "name": "My Khe Beach — Morning Jog",
+        "start": "04:00",
+        "end": "06:00",
+        "notes": "Jogging pagi di pantai sebelum terik",
         "category": "beach",
         "lat": 16.0756383,
         "lon": 108.246874
       },
       {
-        "name": "Coffee Shop + Lunch Da Nang (belum dipilih)",
-        "start": "09:30",
-        "end": "11:30",
-        "notes": "Belum ada opsi spesifik di rencana — cek Popular Places > Da Nang",
-        "category": "food",
-        "lat": null,
-        "lon": null
+        "name": "Pasar Pagi Da Nang + Kopi Takeaway",
+        "start": "06:00",
+        "end": "07:30",
+        "notes": "Explore pasar tradisional & beli kopi untuk takeaway. Opsi pasar dan kopi pagi terlampir.",
+        "category": "market",
+        "lat": 16.0416817,
+        "lon": 108.2424769,
+        "options": [
+          {"name": "Bac My An Market", "rate": 4.5, "reviews": 14440, "note": "Satu lokasi sama Avocado Ice Cream"},
+          {"name": "Han Market (Souvenir)", "rate": 3.9, "reviews": 43946, "note": "Lokasinya berdekatan, bisa diagendakan pagi hari"},
+          {"name": "Con Market (Traditional Market)", "rate": 4.3, "reviews": 22392, "note": null},
+          {"name": "WONDERLUST - Coffee & Souvenir", "rate": 4.5, "reviews": 1526, "note": null},
+          {"name": "Cộng Cà Phê (Kopi Pagi)", "rate": 4.1, "reviews": 9980, "note": "Ada juga di HCM; views bagusan HCM"},
+          {"name": "Avocado Ice Cream - Kem Bơ Cô Vân chợ Bắc Mỹ An (Dessert Pagi)", "rate": 4.4, "reviews": 905, "note": null}
+        ]
       },
       {
-        "name": "Cam Thanh Coconut Village",
-        "start": "12:30",
-        "end": "14:00",
-        "notes": "Coconut Basket Boat",
+        "name": "Lunch Hoi An",
+        "start": "12:00",
+        "end": "13:30",
+        "notes": "Opsi terlampir",
+        "category": "food",
+        "lat": 15.8779509,
+        "lon": 108.3239898,
+        "options": [
+          {"name": "Morning Glory Original", "rate": 4.2, "reviews": 7860, "note": null},
+          {"name": "Chau Kitchen & Bar", "rate": 4.7, "reviews": 1002, "note": null},
+          {"name": "Little Faifo Restaurant", "rate": 4.6, "reviews": 902, "note": null},
+          {"name": "Tasty House - Vietnamese & Indian Halal Restaurant", "rate": 4.2, "reviews": 204, "note": null}
+        ]
+      },
+      {
+        "name": "Hanh Coconut — Basket Boat",
+        "start": "14:20",
+        "end": "15:00",
+        "notes": "Basket boat ride — beli tiket di Klook ~Rp61.000/pax",
         "category": "attraction",
         "lat": 15.87,
         "lon": 108.375
       },
       {
-        "name": "Hoi An Old Town",
-        "start": "14:00",
-        "end": "17:00",
-        "notes": "Explore + lihat sepatu kulit. Opsi coffee: Faifo Coffee (rooftop 360°)",
+        "name": "Coffee Shop Hoi An",
+        "start": "15:00",
+        "end": "16:00",
+        "notes": "Opsi terlampir",
+        "category": "food",
+        "lat": 15.8779509,
+        "lon": 108.3239898,
+        "options": [
+          {"name": "Faifo Coffee", "rate": 4.1, "reviews": 3988, "note": "Rekomen duduk di rooftop"},
+          {"name": "Moments Hoi An", "rate": 4.7, "reviews": 2516, "note": null},
+          {"name": "Uncle Huan Coffee", "rate": 4.8, "reviews": 2860, "note": "Kopinya digambar pohon"},
+          {"name": "Mót Hội An - Nước Thảo Mộc Sả Chanh", "rate": 4.5, "reviews": 3578, "note": null}
+        ]
+      },
+      {
+        "name": "Hoi An Ancient Town",
+        "start": "16:00",
+        "end": "17:30",
+        "notes": "Explore kawasan kota tua — cek sepatu kulit custom",
         "category": "attraction",
         "lat": 15.8779509,
         "lon": 108.3239898
       },
       {
-        "name": "Thu Bon River Lantern Boat",
-        "start": "17:00",
+        "name": "Thu Bon River — Lantern Boat Ride",
+        "start": "17:30",
         "end": "18:30",
-        "notes": "Sunset lantern boat ride",
+        "notes": "Sunset lantern boat — beli tiket di Klook",
         "category": "attraction",
         "lat": 15.875,
         "lon": 108.327
       },
       {
-        "name": "Thia Go Restaurant",
-        "start": "18:30",
-        "end": "20:30",
-        "notes": "Dinner — Michelin Star, Muslim Friendly",
+        "name": "Dinner + Son Tra Night Market",
+        "start": "19:30",
+        "end": "21:00",
+        "notes": "Dinner di Son Tra Night Market — pilih juga dari opsi D2/D3 dinner jika belum dipakai",
         "category": "food",
-        "lat": 16.0532123,
-        "lon": 108.24153
+        "lat": 16.0607314,
+        "lon": 108.2314438,
+        "options": [
+          {"name": "Sơn Trà Night Market", "rate": 3.6, "reviews": 414, "note": "Lokasi dinner malam ini"},
+          {"name": "Pizza 4P's Hoang Van Thu", "rate": 4.8, "reviews": 16057, "note": "Alternatif jika tidak jadi ke Son Tra"},
+          {"name": "Umi Town Izakaya", "rate": 4.8, "reviews": 1910, "note": null},
+          {"name": "I HATE MONDAY DANANG", "rate": 4.8, "reviews": 374, "note": "+ Tempat lucu; - Cukup pricey & kurang otentik"},
+          {"name": "Halal Food Karim", "rate": 4.5, "reviews": 479, "note": null}
+        ]
       }
     ]
   },
@@ -171,28 +243,52 @@
     "day": "Sabtu, 1 Agu — Da Nang → HCM",
     "stops": [
       {
-        "name": "Da Nang Airport",
+        "name": "Da Nang Airport — Departure",
         "start": "06:30",
-        "end": "10:40",
-        "notes": "Checkout + flight ke Ho Chi Minh — flight aktual 09:10 (draft lama 09:00)",
+        "end": "09:00",
+        "notes": "Checkout + persiapan flight ke Ho Chi Minh (flight 09:00)",
         "category": "airport",
         "lat": 16.057,
         "lon": 108.203
       },
       {
+        "name": "Tan Son Nhat Airport — Landing",
+        "start": "10:30",
+        "end": "12:00",
+        "notes": "Landing, imigrasi & check-in Airbnb HCM (titip koper dulu kalau kamar belum siap)",
+        "category": "airport",
+        "lat": 10.8179793,
+        "lon": 106.6562645
+      },
+      {
         "name": "Stay HCM — 359/1 Le Van Sy",
-        "start": "10:40",
-        "end": "13:30",
-        "notes": "Landing, imigrasi, check-in, lunch (opsi lunch belum dipilih)",
+        "start": "12:00",
+        "end": "13:00",
+        "notes": "Drop koper",
         "category": "hotel",
         "lat": 10.788235,
         "lon": 106.676557
       },
       {
-        "name": "Notre Dame Cathedral Saigon",
-        "start": "13:30",
+        "name": "Lunch HCM",
+        "start": "12:00",
+        "end": "13:00",
+        "notes": "Opsi terlampir — makan sekitar Airbnb",
+        "category": "food",
+        "lat": 10.7883598,
+        "lon": 106.6906418,
+        "options": [
+          {"name": "Xoi Ga Number One", "rate": 4.4, "reviews": 790, "note": null},
+          {"name": "Pho Rahim", "rate": 4.7, "reviews": 204, "note": null},
+          {"name": "Musa Karim Halal Restaurant", "rate": 4.7, "reviews": 204, "note": null},
+          {"name": "Com Tam Bo Nuong Halal", "rate": 4.4, "reviews": 91, "note": null}
+        ]
+      },
+      {
+        "name": "Notre-Dame Cathedral Saigon",
+        "start": "13:00",
         "end": "14:00",
-        "notes": "Sedang renovasi, foto eksterior",
+        "notes": "Sedang renovasi — foto eksterior",
         "category": "attraction",
         "lat": 10.7797687,
         "lon": 106.6990427
@@ -200,56 +296,67 @@
       {
         "name": "Saigon Central Post Office",
         "start": "14:00",
-        "end": "14:20",
-        "notes": "",
+        "end": "14:30",
+        "notes": "Landmark ikonik sebelahan Notre Dame",
         "category": "attraction",
         "lat": 10.7799557,
         "lon": 106.6999921
       },
       {
-        "name": "Book Street (Duong Sach Nguyen Van Binh)",
-        "start": "14:20",
-        "end": "15:00",
-        "notes": "",
+        "name": "Coffee Shop Saigon #1",
+        "start": "14:30",
+        "end": "15:30",
+        "notes": "Opsi terlampir",
+        "category": "food",
+        "lat": 10.7805735,
+        "lon": 106.6996948,
+        "options": [
+          {"name": "OKKIO", "rate": 4.6, "reviews": 1275, "note": null},
+          {"name": "3T Cà Phê Trứng", "rate": 4.3, "reviews": 1704, "note": null},
+          {"name": "Little HaNoi Egg Coffee (Yersin)", "rate": 4.8, "reviews": 5478, "note": null},
+          {"name": "Make Room", "rate": 4.7, "reviews": 360, "note": null}
+        ]
+      },
+      {
+        "name": "Saigon Book Street — Nguyen Van Binh",
+        "start": "15:30",
+        "end": "16:00",
+        "notes": "Street buku & souvenir",
         "category": "attraction",
         "lat": 10.7805735,
         "lon": 106.6996948
       },
       {
-        "name": "Saigon Centre",
-        "start": "15:00",
-        "end": "16:30",
-        "notes": "Belanja baju",
-        "category": "market",
-        "lat": 10.7736968,
-        "lon": 106.7010512
-      },
-      {
-        "name": "Landmark 81",
+        "name": "The Cafe Apartment & Sekitarnya",
         "start": "16:30",
-        "end": "19:00",
-        "notes": "Gedung tertinggi Vietnam",
+        "end": "19:30",
+        "notes": "Explore The Cafe Apartment (42 Nguyen Hue) + jalan-jalan area sekitar. Opsi tempat terlampir.",
         "category": "attraction",
-        "lat": 10.7935301,
-        "lon": 106.7228568
+        "lat": 10.772,
+        "lon": 106.702,
+        "options": [
+          {"name": "The Cafe Apartment (Building)", "rate": null, "reviews": null, "note": "Gedung utama — banyak cafe per lantai"},
+          {"name": "Nguyen Hue Walking Street", "rate": 4.5, "reviews": 139, "note": null},
+          {"name": "Ho Chi Minh City Opera House", "rate": 4.6, "reviews": 17707, "note": null},
+          {"name": "Saigon Centre (Mall)", "rate": 4.5, "reviews": 19274, "note": null},
+          {"name": "The New Playground", "rate": 4.3, "reviews": 1689, "note": null},
+          {"name": "CULCAT & THRIFT MAMA (Souvenir)", "rate": 5.0, "reviews": 802, "note": null},
+          {"name": "LIDER (Clothing)", "rate": 4.5, "reviews": 130, "note": null},
+          {"name": "LIBE (Clothing)", "rate": 4.1, "reviews": 199, "note": null}
+        ]
       },
       {
-        "name": "Dinner (belum dipilih)",
-        "start": "19:00",
-        "end": "20:30",
-        "notes": "Belum ada opsi spesifik di rencana — cek Popular Places > Ho Chi Minh",
+        "name": "Dinner HCM",
+        "start": "19:30",
+        "end": "21:00",
+        "notes": "Opsi terlampir",
         "category": "food",
-        "lat": null,
-        "lon": null
-      },
-      {
-        "name": "Nguyen Hue Walking Street",
-        "start": "20:30",
-        "end": "22:00",
-        "notes": "Opsi lainnya: Saigon Skydeck",
-        "category": "nightlife",
-        "lat": 10.774,
-        "lon": 106.704
+        "lat": 10.7736968,
+        "lon": 106.7010512,
+        "options": [
+          {"name": "Chef House Halal Food", "rate": 4.8, "reviews": 790, "note": null},
+          {"name": "Bò Né Bà Nũi", "rate": 4.1, "reviews": 1520, "note": null}
+        ]
       }
     ]
   },
@@ -258,81 +365,87 @@
     "stops": [
       {
         "name": "Ben Thanh Market",
-        "start": "06:00",
-        "end": "09:00",
-        "notes": "Sarapan + belanja souvenir",
+        "start": "07:00",
+        "end": "08:30",
+        "notes": "Sarapan + explore pasar — belanja souvenir/snack",
         "category": "market",
         "lat": 10.7725301,
         "lon": 106.6980365
       },
       {
-        "name": "Turtle Lake",
-        "start": "09:00",
+        "name": "Sipply Specialty Coffee",
+        "start": "08:30",
         "end": "09:30",
-        "notes": "Landmark District 3",
-        "category": "attraction",
+        "notes": "Coffee specialty pagi (Coffee Shop #2)",
+        "category": "food",
         "lat": 10.7826372,
         "lon": 106.6959464
       },
       {
-        "name": "Tan Dinh Church (Gereja Pink)",
+        "name": "Explore Tan Dinh",
         "start": "09:30",
-        "end": "10:00",
-        "notes": "Cek jadwal renovasi",
+        "end": "13:00",
+        "notes": "Opsi terlampir — area Tan Dinh, District 3",
         "category": "attraction",
         "lat": 10.7883598,
-        "lon": 106.6906418
+        "lon": 106.6906418,
+        "options": [
+          {"name": "Tan Dinh Church (Gereja Pink)", "rate": 4.4, "reviews": 8970, "note": null},
+          {"name": "Tan Dinh Market", "rate": 4.2, "reviews": 10273, "note": null},
+          {"name": "Fahasa Bookstore (Souvenir)", "rate": 4.4, "reviews": 4136, "note": null},
+          {"name": "Thuong Xanh Film & Camera", "rate": 4.8, "reviews": 409, "note": null},
+          {"name": "Ngam Cafe", "rate": 4.8, "reviews": 409, "note": null}
+        ]
       },
       {
-        "name": "War Remnants Museum",
-        "start": "10:00",
-        "end": "12:00",
-        "notes": "Buka 7:30-17:30, alokasikan 2+ jam. Termasuk Ngo Thoi Nhiem Street",
-        "category": "museum",
-        "lat": 10.7793647,
-        "lon": 106.6922806
-      },
-      {
-        "name": "Independence Palace",
-        "start": "12:00",
-        "end": "13:00",
-        "notes": "Reunification Palace",
-        "category": "attraction",
-        "lat": 10.7770348,
-        "lon": 106.695488
-      },
-      {
-        "name": "Lunch (belum dipilih)",
+        "name": "Lunch HCM",
         "start": "13:00",
-        "end": "14:30",
-        "notes": "Opsi sekitar District 3 atau 5 — cek Popular Places",
+        "end": "15:00",
+        "notes": "Opsi terlampir",
         "category": "food",
-        "lat": null,
-        "lon": null
+        "lat": 10.7793647,
+        "lon": 106.6922806,
+        "options": [
+          {"name": "Cuc Gach Restaurant", "rate": 4.3, "reviews": 4232, "note": null},
+          {"name": "Bo Ne Thanh Tu", "rate": 4.5, "reviews": 960, "note": null},
+          {"name": "Mặn Mòi, Tao Đàn - Homey Authentic Vietnamese Cuisine", "rate": 4.5, "reviews": 2106, "note": null}
+        ]
       },
       {
-        "name": "Binh Tay Market",
-        "start": "14:30",
-        "end": "16:30",
-        "notes": "Chinatown District 5 — arsitektur Cina",
-        "category": "market",
-        "lat": 10.7492965,
-        "lon": 106.650728
-      },
-      {
-        "name": "Thien Hau Temple (Cholon)",
-        "start": "16:30",
-        "end": "18:30",
-        "notes": "Kuliner lokal sekitar",
+        "name": "Opsi A atau B — Sore HCM",
+        "start": "15:00",
+        "end": "18:00",
+        "notes": "Pilih Opsi A (District 5 Chinatown) ATAU Opsi B (Museum + Riverfront). Opsi terlampir.",
         "category": "attraction",
-        "lat": 10.753,
-        "lon": 106.661
+        "lat": 10.7492965,
+        "lon": 106.650728,
+        "options": [
+          {"name": "⬡ Opsi A — D5 - Thien Hau Pagoda", "rate": 4.6, "reviews": 3516, "note": "Kawasan Chinatown. Cuma 2 spot utama ini."},
+          {"name": "⬡ Opsi A — D5 - Binh Tay Market", "rate": 4.4, "reviews": 6319, "note": null},
+          {"name": "⬡ Opsi B — Independence Palace", "rate": 4.5, "reviews": 47555, "note": null},
+          {"name": "⬡ Opsi B — War Remnants Museum", "rate": 4.5, "reviews": 40854, "note": null},
+          {"name": "⬡ Opsi B — Saigon Riverfront Park", "rate": 4.6, "reviews": 598, "note": "Naik Saigon Waterbus 15.000 VND"},
+          {"name": "⬡ Opsi B — Turtle Lake", "rate": 4.3, "reviews": 4693, "note": null}
+        ]
+      },
+      {
+        "name": "Dinner HCM",
+        "start": "18:00",
+        "end": "19:30",
+        "notes": "Opsi terlampir",
+        "category": "food",
+        "lat": 10.7770348,
+        "lon": 106.695488,
+        "options": [
+          {"name": "Chef House Halal Food", "rate": 4.8, "reviews": 790, "note": null},
+          {"name": "Bò Né Bà Nũi", "rate": 4.1, "reviews": 1520, "note": null}
+        ]
       },
       {
         "name": "Bui Vien Walking Street",
-        "start": "18:30",
-        "end": "21:30",
-        "notes": "Free time, belanja oleh-oleh & dinner — malam terakhir Vietnam",
+        "start": "19:30",
+        "end": "21:00",
+        "notes": "Malam terakhir Vietnam",
         "category": "nightlife",
         "lat": 10.7664161,
         "lon": 106.6906993
@@ -346,7 +459,7 @@
         "name": "Tan Son Nhat Airport",
         "start": "06:30",
         "end": "09:30",
-        "notes": "Flight 9:30 ke Jakarta — keluar hotel jam 6!",
+        "notes": "Keluar Airbnb jam 06:00 — flight 09:30 ke Jakarta",
         "category": "airport",
         "lat": 10.8179793,
         "lon": 106.6562645
