@@ -11,18 +11,20 @@ from jinja2 import Template
 DAY_COLORS = ["#E8593C", "#1D9E75", "#378ADD", "#7F77DD", "#EF9F27", "#D85A30", "#0F6E56"]
 ICON_COLORS = ["red", "green", "blue", "purple", "orange", "darkred", "darkgreen"]
 
-# Option pin colors by parent stop category — distinct from main stop markers
+# Option pin colors by category.
+# Deliberately chosen to NOT overlap with any day color (red/green/blue/purple/orange/darkred/darkgreen)
+# so option pins always look distinct from the confirmed-stop markers on any day.
 OPT_CAT_COLORS = {
-    "food":       "lightred",
-    "attraction": "orange",
-    "market":     "cadetblue",
-    "beach":      "lightblue",
-    "nightlife":  "darkpurple",
-    "museum":     "beige",
-    "hotel":      "pink",
-    "transport":  "lightgray",
-    "airport":    "lightgray",
-    "default":    "gray",
+    "food":       "pink",       # warm but clearly different from red/orange
+    "attraction": "beige",      # neutral, different from orange/blue
+    "market":     "lightblue",  # cool, different from blue (which is darker)
+    "beach":      "cadetblue",  # teal, different from all day colors
+    "nightlife":  "lightgray",  # neutral, different from purple
+    "museum":     "white",      # pale, different from everything
+    "hotel":      "lightgreen", # different from green (which is darker)
+    "transport":  "gray",
+    "airport":    "gray",
+    "default":    "lightgray",
 }
 
 CATEGORY_ICONS = {
