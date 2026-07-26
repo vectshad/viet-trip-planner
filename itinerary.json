@@ -311,7 +311,9 @@
             "name": "Cộng Cà Phê (Kopi Pagi)",
             "rate": 4.1,
             "reviews": 9980,
-            "note": "Ada juga di HCM; views bagusan HCM"
+            "note": "Ada juga di HCM; views bagusan HCM",
+            "lat": 16.06666,
+            "lon": 108.22275
           },
           {
             "name": "Avocado Ice Cream - Kem Bơ Cô Vân chợ Bắc Mỹ An (Dessert Pagi)",
@@ -697,7 +699,9 @@
             "name": "LIBE (Clothing)",
             "rate": 4.1,
             "reviews": 199,
-            "note": null
+            "note": null,
+            "lat": 10.781997,
+            "lon": 106.680953
           }
         ]
       },
