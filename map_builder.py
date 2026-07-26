@@ -43,13 +43,22 @@ CATEGORY_ICONS = {
 
 
 class LayerToggle(MacroElement):
-    """Injects All / None buttons at the top of the Folium layer-control overlay list."""
+    """Injects All / None buttons + responsive max-height CSS into the layer control."""
 
     def __init__(self):
         super().__init__()
         self._template = Template("""
             {% macro script(this, kwargs) %}
             (function () {
+                /* Cap the expanded layer control so it never covers the whole map on mobile */
+                var s = document.createElement('style');
+                s.innerHTML =
+                    '.leaflet-control-layers-expanded {'
+                    + '  max-height: min(220px, 45vh);'
+                    + '  overflow-y: auto;'
+                    + '}';
+                document.head.appendChild(s);
+
                 function tryAdd() {
                     var ov = document.querySelector('.leaflet-control-layers-overlays');
                     if (!ov || ov.querySelector('.lc-tb')) return false;
@@ -208,6 +217,6 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                 ).add_to(opts_group)
     opts_group.add_to(m)
 
-    folium.LayerControl(collapsed=False).add_to(m)
+    folium.LayerControl(collapsed=True).add_to(m)
     LayerToggle().add_to(m)
     return m
