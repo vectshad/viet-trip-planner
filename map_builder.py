@@ -9,8 +9,21 @@ from jinja2 import Template
 
 # Color palette per day index
 DAY_COLORS = ["#E8593C", "#1D9E75", "#378ADD", "#7F77DD", "#EF9F27", "#D85A30", "#0F6E56"]
-ICON_COLORS     = ["red",      "green",      "blue",       "purple", "orange", "darkred", "darkgreen"]
-OPT_ICON_COLORS = ["lightred", "lightgreen", "cadetblue",  "pink",   "beige",  "orange",  "cadetblue"]
+ICON_COLORS = ["red", "green", "blue", "purple", "orange", "darkred", "darkgreen"]
+
+# Option pin colors by parent stop category — distinct from main stop markers
+OPT_CAT_COLORS = {
+    "food":       "lightred",
+    "attraction": "orange",
+    "market":     "cadetblue",
+    "beach":      "lightblue",
+    "nightlife":  "darkpurple",
+    "museum":     "beige",
+    "hotel":      "pink",
+    "transport":  "lightgray",
+    "airport":    "lightgray",
+    "default":    "gray",
+}
 
 CATEGORY_ICONS = {
     "flight": "plane",
@@ -152,12 +165,13 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
 
         feature_group.add_to(m)
 
-    # --- Option place pins (off by default) ---
+    # --- Option place pins (off by default, colored by category) ---
     opts_group = folium.FeatureGroup(name="📋 Opsi Terlampir", show=False)
     for day_idx, day in enumerate(days):
-        color = DAY_COLORS[day_idx % len(DAY_COLORS)]
-        day_label = day.get("day", f"Day {day_idx + 1}")
+        day_color = DAY_COLORS[day_idx % len(DAY_COLORS)]
         for stop in day["stops"]:
+            cat = stop.get("category", "default")
+            pin_color = OPT_CAT_COLORS.get(cat, OPT_CAT_COLORS["default"])
             opts = stop.get("options") or []
             for opt in opts:
                 if not (opt.get("lat") and opt.get("lon")):
@@ -170,7 +184,7 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                 maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
                 popup_html = f"""
                 <div style="font-family:'Segoe UI',sans-serif;min-width:160px;max-width:220px">
-                    <div style="background:{color};color:white;padding:6px 10px;border-radius:6px 6px 0 0;font-weight:600;font-size:12px">
+                    <div style="background:{day_color};color:white;padding:6px 10px;border-radius:6px 6px 0 0;font-weight:600;font-size:12px">
                         📋 {opt['name']}
                     </div>
                     <div style="padding:6px 10px;border:1px solid #eee;border-radius:0 0 6px 6px;font-size:11px">
@@ -185,7 +199,7 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                     popup=folium.Popup(popup_html, max_width=240),
                     tooltip=f"📋 {opt['name']} ({stop['name']})",
                     icon=folium.Icon(
-                        color=OPT_ICON_COLORS[day_idx % len(OPT_ICON_COLORS)],
+                        color=pin_color,
                         icon="bookmark",
                         prefix="fa",
                     ),
