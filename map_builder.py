@@ -63,7 +63,7 @@ class LayerToggle(MacroElement):
                     + '  padding-bottom: 3px;'
                     + '}'
                     + '.leaflet-control-layers:not(.leaflet-control-layers-expanded)::after {'
-                    + '  content: "Layers";'
+                    + '  content: "Legend";'
                     + '  display: block;'
                     + '  font-size: 9px;'
                     + '  font-weight: 700;'
@@ -94,6 +94,49 @@ class LayerToggle(MacroElement):
         """)
 
 
+class CityJump(MacroElement):
+    """Adds Da Nang / Hoi An / HCM city-jump buttons to the top-left of the map."""
+
+    def __init__(self):
+        super().__init__()
+        self._template = Template("""
+            {% macro script(this, kwargs) %}
+            (function () {
+                var map = {{ this._parent.get_name() }};
+                var CityCtrl = L.Control.extend({
+                    options: { position: 'topleft' },
+                    onAdd: function () {
+                        var wrap = L.DomUtil.create('div');
+                        wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-top:4px';
+                        var cities = [
+                            ['Da Nang', 16.068, 108.222, 13],
+                            ['Hoi An',  15.877, 108.328, 14],
+                            ['HCM',     10.777, 106.700, 13],
+                        ];
+                        cities.forEach(function (ct) {
+                            var btn = L.DomUtil.create('button', '', wrap);
+                            btn.textContent = ct[0];
+                            btn.style.cssText =
+                                'display:block;width:100%;padding:4px 8px;'
+                                + 'font-size:11px;font-weight:600;line-height:1.2;'
+                                + 'background:white;border:1px solid #aaa;'
+                                + 'border-radius:4px;cursor:pointer;'
+                                + 'box-shadow:0 1px 3px rgba(0,0,0,.25);'
+                                + 'white-space:nowrap;';
+                            L.DomEvent.on(btn, 'click', L.DomEvent.stop);
+                            L.DomEvent.on(btn, 'click', function () {
+                                map.setView([ct[1], ct[2]], ct[3]);
+                            });
+                        });
+                        return wrap;
+                    }
+                });
+                new CityCtrl().addTo(map);
+            })();
+            {% endmacro %}
+        """)
+
+
 def get_icon(category: str, day_idx: int) -> folium.Icon:
     icon_name = CATEGORY_ICONS.get(category.lower(), CATEGORY_ICONS["default"])
     color = ICON_COLORS[day_idx % len(ICON_COLORS)]
@@ -108,7 +151,7 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
     if not all_lats:
         center = [16.0544, 108.2022]  # Default: Da Nang
     else:
-        center = [sum(all_lats) / len(all_lats), sum(all_lons) / len(all_lons)]
+        center = [all_lats[0], all_lons[0]]  # First geocoded stop (Da Nang when all days shown)
 
     m = folium.Map(
         location=center,
@@ -234,4 +277,5 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
 
     folium.LayerControl(collapsed=True).add_to(m)
     LayerToggle().add_to(m)
+    CityJump().add_to(m)
     return m
