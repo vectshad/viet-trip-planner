@@ -146,6 +146,66 @@ with st.sidebar:
         st.caption("💾 GitHub sync: not configured (local mode)")
 
 
+# Shared across Map View and Timeline
+_CAT_COLORS = {
+    "flight": "#378ADD", "food": "#1D9E75", "hotel": "#7F77DD",
+    "attraction": "#E8593C", "market": "#EF9F27", "beach": "#0F6E56",
+    "transport": "#888780", "museum": "#533ab7", "nightlife": "#D85A30",
+    "airport": "#378ADD", "default": "#888780",
+}
+
+def _render_excel_opts(opts, cat_color, default_open=True):
+    """Return HTML <details> block for Excel options."""
+    rows = ""
+    for opt in opts:
+        name_o   = opt.get("name", "")
+        rate     = opt.get("rate")
+        rev      = opt.get("reviews")
+        note_o   = opt.get("note") or ""
+        star_str = f"⭐ {rate}" if rate else ""
+        rev_str  = f"({int(rev):,} reviews)" if rev else ""
+        note_str = f" &nbsp;·&nbsp; <i style='color:#777'>{note_o}</i>" if note_o else ""
+        maps_q   = name_o.replace(" ", "+")
+        maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
+        meta     = " &nbsp;·&nbsp; ".join(filter(None, [star_str, rev_str]))
+        rows += (
+            f'<div style="padding:5px 0;border-bottom:1px solid #e2e8f0;color:#1a202c">'
+            f'<b style="color:#1a202c">{name_o}</b>{note_str}'
+            f'<br><small style="color:#555">{meta}'
+            f' &nbsp;·&nbsp; <a href="{maps_url}" target="_blank">📍 Google Maps</a>'
+            f'</small></div>'
+        )
+    open_attr = "open" if default_open else ""
+    return (
+        f'<details {open_attr} style="background:#f8f9fa;border-left:4px solid {cat_color};'
+        f'border-radius:0 8px 8px 0;padding:8px 14px;margin:6px 0">'
+        f'<summary style="cursor:pointer;font-size:12.5px;color:#555;'
+        f'font-weight:600;list-style:none">&#9654; 📋 {len(opts)} opsi dari rencana</summary>'
+        f'<div style="margin-top:6px">{rows}</div>'
+        f'</details>'
+    )
+
+def _render_tiktok_opts(suggestions):
+    """Return HTML <details> block for TikTok suggestions (collapsed by default)."""
+    rows = ""
+    for s in suggestions:
+        rating_str = f' &nbsp;·&nbsp; ⭐{s["rating"]}' if s["rating"] else ""
+        dist_str   = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
+        rows += (
+            f'<div style="font-size:12.5px;padding:3px 0;border-bottom:1px solid #e2e8f0">'
+            f'• <b>{s["name"]}</b>{rating_str} &nbsp;·&nbsp; {dist_str}'
+            f' &nbsp;·&nbsp; <a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
+        )
+    return (
+        f'<details style="border-left:4px solid #a0aec0;'
+        f'border-radius:0 8px 8px 0;padding:8px 14px;margin:4px 0">'
+        f'<summary style="cursor:pointer;font-size:12.5px;color:#718096;'
+        f'font-weight:600;list-style:none">&#9654; 💡 {len(suggestions)} opsi dari TikTok data</summary>'
+        f'<div style="margin-top:6px">{rows}</div>'
+        f'</details>'
+    )
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # MAP VIEW
 # ══════════════════════════════════════════════════════════════════════════════
@@ -170,7 +230,7 @@ if tab == "🗺️ Map View":
         clicked = map_data["last_object_clicked"]
         lat, lon = clicked.get("lat"), clicked.get("lng")
         if lat and lon:
-            # Find closest stop
+            # Find closest stop — store full day dict for city inference
             closest = None
             min_dist = float("inf")
             for day in days_to_show:
@@ -179,16 +239,39 @@ if tab == "🗺️ Map View":
                         d = abs(stop["lat"] - lat) + abs(stop["lon"] - lon)
                         if d < min_dist:
                             min_dist = d
-                            closest = (day["day"], stop)
+                            closest = (day, stop)
             if closest and min_dist < 0.01:
-                day_label, stop = closest
+                day_obj, stop = closest
+                cat_color = _CAT_COLORS.get(stop.get("category", "default"), "#888780")
                 with st.expander(f"📍 {stop['name']}", expanded=True):
                     col1, col2, col3 = st.columns(3)
-                    col1.markdown(f"**Day**\n\n{day_label}")
+                    col1.markdown(f"**Day**\n\n{day_obj['day']}")
                     col2.markdown(f"**Time**\n\n{stop.get('start', '—')} – {stop.get('end', '—')}")
                     col3.markdown(f"**Category**\n\n{stop.get('category', '—').title()}")
                     if stop.get("notes"):
                         st.info(stop["notes"])
+
+                    # Excel options — open by default (not many, easy to scan)
+                    opts = stop.get("options")
+                    if opts:
+                        st.markdown(
+                            _render_excel_opts(opts, cat_color, default_open=True),
+                            unsafe_allow_html=True,
+                        )
+
+                    # TikTok suggestions — collapsed by default to avoid clutter
+                    _MAP_SUGGEST_CATS = {"food", "market", "attraction", "nightlife", "museum", "beach"}
+                    city = infer_city(day_obj)
+                    if city and stop.get("category") in _MAP_SUGGEST_CATS:
+                        suggestions = suggest_places(
+                            city, stop.get("category", ""),
+                            stop.get("lat"), stop.get("lon"),
+                        )
+                        if suggestions:
+                            st.markdown(
+                                _render_tiktok_opts(suggestions),
+                                unsafe_allow_html=True,
+                            )
 
     # Legend
     st.markdown("---")
@@ -210,12 +293,7 @@ if tab == "🗺️ Map View":
 elif tab == "📅 Timeline":
     st.markdown("## 📅 Day-by-Day Timeline")
 
-    category_colors = {
-        "flight": "#378ADD", "food": "#1D9E75", "hotel": "#7F77DD",
-        "attraction": "#E8593C", "market": "#EF9F27", "beach": "#0F6E56",
-        "transport": "#888780", "museum": "#533ab7", "nightlife": "#D85A30",
-        "airport": "#378ADD", "default": "#888780",
-    }
+    _SUGGEST_CATS = {"food", "market", "attraction", "nightlife", "museum", "beach"}
 
     for day_idx, day in enumerate(st.session_state.days):
         color = DAY_COLORS[day_idx % len(DAY_COLORS)]
@@ -228,7 +306,7 @@ elif tab == "📅 Timeline":
         city = infer_city(day)
 
         for stop_idx, stop in enumerate(day["stops"]):
-            cat_color = category_colors.get(stop.get("category", "default"), "#888780")
+            cat_color = _CAT_COLORS.get(stop.get("category", "default"), "#888780")
             time_str = ""
             if stop.get("start") and stop.get("end"):
                 time_str = f'<span class="stop-time">⏰ {stop["start"]} – {stop["end"]}</span> &nbsp;'
@@ -247,59 +325,25 @@ elif tab == "📅 Timeline":
                 unsafe_allow_html=True,
             )
 
-            # Options from Excel right-side table — white card matching stop style
+            # Excel options — collapsed by default in Timeline (not too cluttered)
             opts = stop.get("options")
             if opts:
-                rows = ""
-                for opt in opts:
-                    name_o   = opt.get("name", "")
-                    rate     = opt.get("rate")
-                    rev      = opt.get("reviews")
-                    note_o   = opt.get("note") or ""
-                    star_str = f"⭐ {rate}" if rate else ""
-                    rev_str  = f"({int(rev):,} reviews)" if rev else ""
-                    note_str = f" &nbsp;·&nbsp; <i style='color:#777'>{note_o}</i>" if note_o else ""
-                    maps_q   = name_o.replace(" ", "+")
-                    maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
-                    meta     = " &nbsp;·&nbsp; ".join(filter(None, [star_str, rev_str]))
-                    rows += (
-                        f'<div style="padding:6px 0;border-bottom:1px solid #eee;color:#1a202c">'
-                        f'<b style="color:#1a202c">{name_o}</b>{note_str}'
-                        f'<br><small style="color:#666">{meta}'
-                        f' &nbsp;·&nbsp; <a href="{maps_url}" target="_blank">📍 Google Maps</a>'
-                        f'</small></div>'
-                    )
                 st.markdown(
-                    f'<details style="background:#f8f9fa;border-left:4px solid {cat_color};'
-                    f'border-radius:0 8px 8px 0;padding:8px 14px;margin:-4px 0 8px 0">'
-                    f'<summary style="cursor:pointer;font-size:12.5px;color:#555;'
-                    f'font-weight:600;list-style:none">&#9654; 📋 {len(opts)} opsi terlampir</summary>'
-                    f'<div style="margin-top:6px">{rows}</div>'
-                    f'</details>',
+                    _render_excel_opts(opts, cat_color, default_open=False),
                     unsafe_allow_html=True,
                 )
 
-            # TikTok scraped data suggestions — always available for food/market/attraction stops
-            _SUGGEST_CATS = {"food", "market", "attraction", "nightlife", "museum", "beach"}
+            # TikTok suggestions — collapsed by default
             if city and stop.get("category") in _SUGGEST_CATS:
                 anchor_lat, anchor_lon, anchor_name = find_anchor(day, stop_idx)
                 suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon)
                 if suggestions:
-                    def _render_sugg(s):
-                        rating_str = f' · ⭐{s["rating"]}' if s["rating"] else ""
-                        dist_str = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
-                        return (
-                            f'<div style="font-size:12.5px;padding:2px 0">'
-                            f'• <b>{s["name"]}</b>{rating_str} · {dist_str} · '
-                            f'<a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
-                        )
                     dist_note = f" · dari '{anchor_name}'" if anchor_name else ""
-                    sugg_html = "".join(_render_sugg(s) for s in suggestions)
                     with st.expander(
                         f"💡 {len(suggestions)} opsi dari TikTok data{dist_note}",
                         expanded=False,
                     ):
-                        st.markdown(sugg_html, unsafe_allow_html=True)
+                        st.markdown(_render_tiktok_opts(suggestions), unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
