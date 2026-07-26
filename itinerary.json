@@ -718,7 +718,9 @@
             "name": "Rasa Buffet",
             "rate": null,
             "reviews": null,
-            "note": null
+            "note": null,
+            "lat": 10.788245,
+            "lon": 106.6960389
           },
           {
             "name": "Chef House Halal Food",
@@ -917,7 +919,9 @@
             "name": "Rasa Buffet",
             "rate": null,
             "reviews": null,
-            "note": null
+            "note": null,
+            "lat": 10.788245,
+            "lon": 106.6960389
           },
           {
             "name": "Chef House Halal Food",
