@@ -279,6 +279,31 @@ elif tab == "📅 Timeline":
                     unsafe_allow_html=True,
                 )
 
+            # TikTok scraped data suggestions — always available for food/market/attraction stops
+            _SUGGEST_CATS = {"food", "market", "attraction", "nightlife", "museum", "beach"}
+            if city and stop.get("category") in _SUGGEST_CATS:
+                anchor_lat, anchor_lon, anchor_name = find_anchor(day, stop_idx)
+                suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon)
+                if suggestions:
+                    def _render_sugg(s):
+                        rating_str = f' · ⭐{s["rating"]}' if s["rating"] else ""
+                        dist_str = f'{s["dist_km"]:.1f} km' if s["dist_km"] is not None else "jarak ?"
+                        return (
+                            f'<div style="font-size:12.5px;color:#1a202c;padding:2px 0">'
+                            f'• <b style="color:#1a202c">{s["name"]}</b>{rating_str} · {dist_str} · '
+                            f'<a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
+                        )
+                    dist_note = f" · dari '{anchor_name}'" if anchor_name else ""
+                    sugg_html = "".join(_render_sugg(s) for s in suggestions)
+                    with st.expander(
+                        f"💡 {len(suggestions)} opsi dari TikTok data{dist_note}",
+                        expanded=False,
+                    ):
+                        st.markdown(
+                            f'<div style="padding:4px 0">{sugg_html}</div>',
+                            unsafe_allow_html=True,
+                        )
+
         st.markdown("<br>", unsafe_allow_html=True)
 
     # Belum Masuk Rundown — unscheduled HCM places from the Excel options table
