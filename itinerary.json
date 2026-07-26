@@ -32,13 +32,17 @@
             "name": "Phở Hub",
             "rate": 4.8,
             "reviews": 139,
-            "note": null
+            "note": null,
+            "lat": 16.052987,
+            "lon": 108.241578
           },
           {
             "name": "Phở Thìn Hồ Nghinh",
             "rate": 4.4,
             "reviews": 1000,
-            "note": null
+            "note": null,
+            "lat": 16.04992,
+            "lon": 108.23957
           }
         ]
       },
@@ -131,7 +135,9 @@
             "name": "CẬU CẢ HẢI SẢN - 955 Nguyễn Tất Thành - Tầng 1",
             "rate": 4.8,
             "reviews": 124,
-            "note": null
+            "note": null,
+            "lat": 16.07478,
+            "lon": 108.184767
           },
           {
             "name": "Hai San Nam Danh Seafood",
@@ -191,7 +197,9 @@
             "name": "Umi Town Izakaya",
             "rate": 4.8,
             "reviews": 1910,
-            "note": null
+            "note": null,
+            "lat": 16.061301,
+            "lon": 108.229752
           },
           {
             "name": "I HATE MONDAY DANANG",
@@ -257,19 +265,25 @@
             "name": "Bac My An Market",
             "rate": 4.5,
             "reviews": 14440,
-            "note": "Satu lokasi sama Avocado Ice Cream"
+            "note": "Satu lokasi sama Avocado Ice Cream",
+            "lat": 16.041641,
+            "lon": 108.206328
           },
           {
             "name": "Han Market (Souvenir)",
             "rate": 3.9,
             "reviews": 43946,
-            "note": "Lokasinya berdekatan, bisa diagendakan pagi hari"
+            "note": "Lokasinya berdekatan, bisa diagendakan pagi hari",
+            "lat": 16.068084,
+            "lon": 108.219563
           },
           {
             "name": "Con Market (Traditional Market)",
             "rate": 4.3,
             "reviews": 22392,
-            "note": null
+            "note": null,
+            "lat": 16.067793,
+            "lon": 108.209977
           },
           {
             "name": "WONDERLUST - Coffee & Souvenir",
@@ -421,7 +435,9 @@
             "name": "Umi Town Izakaya",
             "rate": 4.8,
             "reviews": 1910,
-            "note": null
+            "note": null,
+            "lat": 16.061301,
+            "lon": 108.229752
           },
           {
             "name": "I HATE MONDAY DANANG",
@@ -504,7 +520,9 @@
             "name": "Com Tam Bo Nuong Halal",
             "rate": 4.4,
             "reviews": 91,
-            "note": null
+            "note": null,
+            "lat": 10.770009,
+            "lon": 106.665404
           }
         ]
       },
@@ -589,7 +607,9 @@
             "name": "The Cafe Apartment (Building)",
             "rate": null,
             "reviews": null,
-            "note": "Gedung utama — banyak cafe per lantai"
+            "note": "Gedung utama — banyak cafe per lantai",
+            "lat": 10.774089,
+            "lon": 106.699553
           },
           {
             "name": "Nguyen Hue Walking Street",
@@ -627,7 +647,9 @@
             "name": "CULCAT & THRIFT MAMA (Souvenir)",
             "rate": 5.0,
             "reviews": 802,
-            "note": null
+            "note": null,
+            "lat": 10.772457,
+            "lon": 106.697866
           },
           {
             "name": "LIDER (Clothing)",
@@ -778,7 +800,9 @@
             "name": "⬡ Opsi A — D5 - Thien Hau Pagoda",
             "rate": 4.6,
             "reviews": 3516,
-            "note": "Kawasan Chinatown. Cuma 2 spot utama ini."
+            "note": "Kawasan Chinatown. Cuma 2 spot utama ini.",
+            "lat": 10.75325,
+            "lon": 106.656667
           },
           {
             "name": "⬡ Opsi A — D5 - Binh Tay Market",
