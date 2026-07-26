@@ -10,14 +10,13 @@ Requires:
     playwright install chromium
 """
 
-import asyncio, csv, re, sys
+import asyncio, csv, re, sys, argparse
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from playwright.async_api import async_playwright
 
-CSV_FILE  = "missing_coords.csv"
-COORD_RE  = re.compile(r"@(-?\d+\.\d+),(-?\d+\.\d+)")
-DELAY     = 2.5  # seconds between searches
+CSV_FILE = "missing_coords.csv"
+COORD_RE = re.compile(r"@(-?\d+\.\d+),(-?\d+\.\d+)")
 
 
 def _coords(url: str):
@@ -26,14 +25,46 @@ def _coords(url: str):
 
 
 async def _dismiss_consent(page):
-    """Click 'Accept all' if Google shows a cookie/consent dialog."""
     try:
-        btn = page.get_by_role("button", name=re.compile(r"accept all|agree", re.I))
+        btn = page.get_by_role("button", name=re.compile(r"accept all|agree|setuju|terima", re.I))
         if await btn.count() > 0:
             await btn.first.click()
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
     except Exception:
         pass
+
+
+async def _poll_url(page, check, timeout=10.0, interval=0.4):
+    """Poll page.url every `interval` seconds until `check(url)` is True or timeout."""
+    steps = int(timeout / interval)
+    for _ in range(steps):
+        url = page.url
+        if check(url):
+            return url
+        await asyncio.sleep(interval)
+    return page.url
+
+
+async def _js_click_first_result(page) -> str | None:
+    """Click the first search result via JavaScript. Returns the selector used or None."""
+    try:
+        return await page.evaluate("""() => {
+            var sels = [
+                'a.hfpxzc',
+                'a[href*=\"/maps/place/\"]',
+                '.Nv2PK a',
+                '.lI9IFe a',
+                '[data-result-index=\"0\"] a',
+                'div[role=\"article\"] a'
+            ];
+            for (var s of sels) {
+                var el = document.querySelector(s);
+                if (el) { el.click(); return s; }
+            }
+            return null;
+        }""")
+    except Exception:
+        return None
 
 
 async def geocode_one(page, name: str, city: str):
@@ -42,39 +73,38 @@ async def geocode_one(page, name: str, city: str):
 
     try:
         await page.goto(search_url, wait_until="domcontentloaded", timeout=25000)
-        await _dismiss_consent(page)
-        await asyncio.sleep(DELAY)
     except Exception as e:
-        return None, None, f"nav error: {e}"
+        return None, None, f"nav:{e}"
 
-    url = page.url
+    await _dismiss_consent(page)
 
-    # Best case: Google already redirected to the specific place page
+    # Wait for Google Maps JS to add @lat,lon to the URL (up to 10s)
+    url = await _poll_url(page, lambda u: "@" in u, timeout=10.0)
+
+    # Already redirected to a specific place
     if "/place/" in url and "@" in url:
-        lat, lon = _coords(url)
-        return lat, lon, "place"
+        return *_coords(url), "place"
 
-    # On search results — click the first result to open the place
-    try:
-        first = page.locator('a[href*="/maps/place/"]').first
-        await first.click(timeout=6000)
-        await asyncio.sleep(DELAY)
-        url = page.url
+    # On search results — click first result via JS and wait for URL to change
+    sel_used = await _js_click_first_result(page)
+    if sel_used:
+        url = await _poll_url(page, lambda u: "/place/" in u and "@" in u, timeout=8.0)
         if "/place/" in url and "@" in url:
-            lat, lon = _coords(url)
-            return lat, lon, "clicked"
-    except Exception:
-        pass
+            return *_coords(url), f"clicked({sel_used})"
 
-    # Last resort: use the map-center coords from the search URL (less precise)
+    # Search-center fallback — the @lat,lon is the map center, close enough
+    url = page.url
     if "@" in url:
-        lat, lon = _coords(url)
-        return lat, lon, "search-center"
+        return *_coords(url), "search-center"
 
-    return None, None, "not found"
+    return None, None, f"stuck:{url[:60]}"
 
 
 async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", type=int, default=None, help="Only process N rows (for testing)")
+    args = parser.parse_args()
+
     with open(CSV_FILE, encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         fieldnames = list(reader.fieldnames)
@@ -92,6 +122,9 @@ async def main():
     if not pending_idx:
         print("Nothing to geocode — all rows already have a URL or coords.")
         return
+
+    if args.limit:
+        pending_idx = pending_idx[:args.limit]
 
     print(f"{len(pending_idx)} rows to geocode\n")
 
@@ -118,17 +151,17 @@ async def main():
             if lat is not None:
                 rows[i]["Lat"] = str(lat)
                 rows[i]["Lon"] = str(lon)
-                if status == "place":
+                if "place" == status:
                     print(f"✅  {lat}, {lon}")
                     place_hits += 1
-                elif status == "clicked":
+                elif status.startswith("clicked"):
                     print(f"✅ (clicked)  {lat}, {lon}")
                     click_hits += 1
                 else:
                     print(f"⚠️  search-center  {lat}, {lon}")
                     center_hits += 1
             else:
-                print("❌  not found")
+                print(f"❌  {status}")
                 misses += 1
 
         await browser.close()
