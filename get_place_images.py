@@ -168,6 +168,8 @@ async def main():
                         help="Only process main day stops")
     parser.add_argument("--options-only", action="store_true",
                         help="Only process option pins")
+    parser.add_argument("--name", type=str, default=None,
+                        help="Only process entries whose name contains this substring (case-insensitive)")
     args = parser.parse_args()
 
     with open(ITIN_FILE, encoding="utf-8") as f:
@@ -177,18 +179,22 @@ async def main():
     # targets: list of (dict_ref, display_label)
     targets: list[tuple[dict, str]] = []
 
+    name_filter = args.name.lower() if args.name else None
+
     for day in data:
         day_label = day.get("day", "")
         for stop in day["stops"]:
             if not args.options_only:
                 if stop.get("lat") and stop.get("lon"):
                     if args.overwrite or not stop.get("img_url"):
-                        targets.append((stop, f'[stop]  {stop["name"]}'))
+                        if not name_filter or name_filter in stop["name"].lower():
+                            targets.append((stop, f'[stop]  {stop["name"]}'))
             if not args.stops_only:
                 for opt in stop.get("options") or []:
                     if opt.get("lat") and opt.get("lon"):
                         if args.overwrite or not opt.get("img_url"):
-                            targets.append((opt, f'[opt]   {opt["name"]}'))
+                            if not name_filter or name_filter in opt["name"].lower():
+                                targets.append((opt, f'[opt]   {opt["name"]}'))
 
     if not targets:
         print("Nothing to fetch — all entries already have img_url.")
