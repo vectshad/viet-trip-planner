@@ -151,6 +151,47 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
 
         feature_group.add_to(m)
 
+    # --- Option place pins (off by default) ---
+    opts_group = folium.FeatureGroup(name="📋 Opsi Terlampir", show=False)
+    for day_idx, day in enumerate(days):
+        color = DAY_COLORS[day_idx % len(DAY_COLORS)]
+        day_label = day.get("day", f"Day {day_idx + 1}")
+        for stop in day["stops"]:
+            opts = stop.get("options") or []
+            for opt in opts:
+                if not (opt.get("lat") and opt.get("lon")):
+                    continue
+                rate_str = f"⭐ {opt['rate']}" if opt.get("rate") else ""
+                rev_str = f"({int(opt['reviews']):,} ulasan)" if opt.get("reviews") else ""
+                note_str = f"<br><i style='color:#888'>{opt['note']}</i>" if opt.get("note") else ""
+                meta = " &nbsp;·&nbsp; ".join(filter(None, [rate_str, rev_str]))
+                maps_q = opt["name"].replace(" ", "+")
+                maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
+                popup_html = f"""
+                <div style="font-family:'Segoe UI',sans-serif;min-width:160px;max-width:220px">
+                    <div style="background:{color};color:white;padding:6px 10px;border-radius:6px 6px 0 0;font-weight:600;font-size:12px">
+                        📋 {opt['name']}
+                    </div>
+                    <div style="padding:6px 10px;border:1px solid #eee;border-radius:0 0 6px 6px;font-size:11px">
+                        <span style="color:#555">Opsi untuk: <b>{stop['name']}</b></span><br>
+                        <span style="color:#444">{meta}</span>{note_str}<br>
+                        <a href="{maps_url}" target="_blank">📍 Google Maps</a>
+                    </div>
+                </div>
+                """
+                folium.CircleMarker(
+                    location=[opt["lat"], opt["lon"]],
+                    radius=6,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    fill_opacity=0.7,
+                    weight=2,
+                    popup=folium.Popup(popup_html, max_width=240),
+                    tooltip=f"📋 {opt['name']} ({stop['name']})",
+                ).add_to(opts_group)
+    opts_group.add_to(m)
+
     folium.LayerControl(collapsed=False).add_to(m)
     LayerToggle().add_to(m)
     return m
