@@ -191,9 +191,21 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
 
             notes_str = f"<p style='color:#666;font-size:12px;margin:4px 0 0'>{stop['notes']}</p>" if stop.get("notes") else ""
 
+            img_html = ""
+            header_radius = "6px 6px 0 0"
+            if stop.get("img_url"):
+                img_html = (
+                    f'<img src="{stop["img_url"]}" '
+                    f'style="width:100%;height:110px;object-fit:cover;'
+                    f'border-radius:6px 6px 0 0;display:block" '
+                    f'onerror="this.remove()">'
+                )
+                header_radius = "0"
+
             popup_html = f"""
             <div style="font-family:'Segoe UI',sans-serif;min-width:180px;max-width:240px">
-                <div style="background:{color};color:white;padding:8px 10px;border-radius:6px 6px 0 0;font-weight:600;font-size:13px">
+                {img_html}
+                <div style="background:{color};color:white;padding:8px 10px;border-radius:{header_radius};font-weight:600;font-size:13px">
                     {stop_idx + 1}. {stop['name']}
                 </div>
                 <div style="padding:8px 10px;border:1px solid #eee;border-radius:0 0 6px 6px">
@@ -251,9 +263,22 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                 meta = " &nbsp;·&nbsp; ".join(filter(None, [rate_str, rev_str]))
                 maps_q = opt["name"].replace(" ", "+")
                 maps_url = f"https://www.google.com/maps/search/?api=1&query={maps_q}+Vietnam"
+
+                opt_img_html = ""
+                opt_header_radius = "6px 6px 0 0"
+                if opt.get("img_url"):
+                    opt_img_html = (
+                        f'<img src="{opt["img_url"]}" '
+                        f'style="width:100%;height:100px;object-fit:cover;'
+                        f'border-radius:6px 6px 0 0;display:block" '
+                        f'onerror="this.remove()">'
+                    )
+                    opt_header_radius = "0"
+
                 popup_html = f"""
                 <div style="font-family:'Segoe UI',sans-serif;min-width:160px;max-width:220px">
-                    <div style="background:{day_color};color:white;padding:6px 10px;border-radius:6px 6px 0 0;font-weight:600;font-size:12px">
+                    {opt_img_html}
+                    <div style="background:{day_color};color:white;padding:6px 10px;border-radius:{opt_header_radius};font-weight:600;font-size:12px">
                         📋 {opt['name']}
                     </div>
                     <div style="padding:6px 10px;border:1px solid #eee;border-radius:0 0 6px 6px;font-size:11px">
