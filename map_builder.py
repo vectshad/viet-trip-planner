@@ -50,12 +50,27 @@ class LayerToggle(MacroElement):
         self._template = Template("""
             {% macro script(this, kwargs) %}
             (function () {
-                /* Cap the expanded layer control so it never covers the whole map on mobile */
+                /* Cap the expanded layer control so it never covers the whole map on mobile.
+                   Also show a small "Layers" label below the collapsed icon so users know
+                   what it does without hovering. */
                 var s = document.createElement('style');
                 s.innerHTML =
                     '.leaflet-control-layers-expanded {'
                     + '  max-height: min(220px, 45vh);'
                     + '  overflow-y: auto;'
+                    + '}'
+                    + '.leaflet-control-layers:not(.leaflet-control-layers-expanded) {'
+                    + '  padding-bottom: 3px;'
+                    + '}'
+                    + '.leaflet-control-layers:not(.leaflet-control-layers-expanded)::after {'
+                    + '  content: "Layers";'
+                    + '  display: block;'
+                    + '  font-size: 9px;'
+                    + '  font-weight: 700;'
+                    + '  letter-spacing: 0.4px;'
+                    + '  color: #555;'
+                    + '  text-align: center;'
+                    + '  padding: 0 4px;'
                     + '}';
                 document.head.appendChild(s);
 
