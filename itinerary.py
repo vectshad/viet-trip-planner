@@ -185,7 +185,7 @@ def _render_excel_opts(opts, cat_color, default_open=True):
         f'</details>'
     )
 
-def _render_tiktok_opts(suggestions):
+def _render_tiktok_opts(suggestions, dist_note=""):
     """Return HTML <details> block for TikTok suggestions (collapsed by default)."""
     rows = ""
     for s in suggestions:
@@ -196,11 +196,12 @@ def _render_tiktok_opts(suggestions):
             f'• <b>{s["name"]}</b>{rating_str} &nbsp;·&nbsp; {dist_str}'
             f' &nbsp;·&nbsp; <a href="{s["maps_url"]}" target="_blank">📍 Maps</a></div>'
         )
+    label = f'💡 {len(suggestions)} opsi dari TikTok data{dist_note}'
     return (
         f'<details style="border-left:4px solid #a0aec0;'
         f'border-radius:0 8px 8px 0;padding:8px 14px;margin:4px 0">'
         f'<summary style="cursor:pointer;font-size:12.5px;color:#718096;'
-        f'font-weight:600;list-style:none">&#9654; 💡 {len(suggestions)} opsi dari TikTok data</summary>'
+        f'font-weight:600;list-style:none">&#9654; {label}</summary>'
         f'<div style="margin-top:6px">{rows}</div>'
         f'</details>'
     )
@@ -333,17 +334,16 @@ elif tab == "📅 Timeline":
                     unsafe_allow_html=True,
                 )
 
-            # TikTok suggestions — collapsed by default
+            # TikTok suggestions — collapsed by default (uses <details> like Excel opts)
             if city and stop.get("category") in _SUGGEST_CATS:
                 anchor_lat, anchor_lon, anchor_name = find_anchor(day, stop_idx)
                 suggestions = suggest_places(city, stop.get("category", ""), anchor_lat, anchor_lon)
                 if suggestions:
                     dist_note = f" · dari '{anchor_name}'" if anchor_name else ""
-                    with st.expander(
-                        f"💡 {len(suggestions)} opsi dari TikTok data{dist_note}",
-                        expanded=False,
-                    ):
-                        st.markdown(_render_tiktok_opts(suggestions), unsafe_allow_html=True)
+                    st.markdown(
+                        _render_tiktok_opts(suggestions, dist_note),
+                        unsafe_allow_html=True,
+                    )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
