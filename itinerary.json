@@ -68,7 +68,9 @@
             "name": "Trạm 247 Tea n Coffee - CN Lý Thái Tông",
             "rate": 4.8,
             "reviews": 458,
-            "note": "Kalo ngopi dulu baru pantai"
+            "note": "Kalo ngopi dulu baru pantai",
+            "lat": 16.071688,
+            "lon": 108.173556
           },
           {
             "name": "Reply 1988 Cafe",
@@ -143,7 +145,9 @@
             "name": "Hai San Nam Danh Seafood",
             "rate": 4.1,
             "reviews": 6846,
-            "note": null
+            "note": null,
+            "lat": 16.102297,
+            "lon": 108.253399
           }
         ]
       },
@@ -191,7 +195,9 @@
             "name": "Pizza 4P's Hoang Van Thu",
             "rate": 4.8,
             "reviews": 16057,
-            "note": null
+            "note": null,
+            "lat": 16.062743,
+            "lon": 108.222798
           },
           {
             "name": "Umi Town Izakaya",
@@ -205,13 +211,17 @@
             "name": "I HATE MONDAY DANANG",
             "rate": 4.8,
             "reviews": 374,
-            "note": "+ Tempat lucu; - Cukup pricey & kurang otentik"
+            "note": "+ Tempat lucu; - Cukup pricey & kurang otentik",
+            "lat": 16.045345,
+            "lon": 108.235747
           },
           {
             "name": "Halal Food Karim",
             "rate": 4.5,
             "reviews": 479,
-            "note": null
+            "note": null,
+            "lat": 16.056489,
+            "lon": 108.231612
           }
         ]
       },
@@ -228,13 +238,17 @@
             "name": "Hill Spa - Body & Foot Massage",
             "rate": 4.7,
             "reviews": 130,
-            "note": null
+            "note": null,
+            "lat": 16.049008,
+            "lon": 108.247208
           },
           {
             "name": "T Spa 196 Trần Phú",
             "rate": 4.7,
             "reviews": 140,
-            "note": "Lebih deket dari Son Tra Night Market"
+            "note": "Lebih deket dari Son Tra Night Market",
+            "lat": 16.064472,
+            "lon": 108.223352
           }
         ]
       }
@@ -289,7 +303,9 @@
             "name": "WONDERLUST - Coffee & Souvenir",
             "rate": 4.5,
             "reviews": 1526,
-            "note": null
+            "note": null,
+            "lat": 16.069156,
+            "lon": 108.223843
           },
           {
             "name": "Cộng Cà Phê (Kopi Pagi)",
@@ -334,13 +350,17 @@
             "name": "Little Faifo Restaurant",
             "rate": 4.6,
             "reviews": 902,
-            "note": null
+            "note": null,
+            "lat": 15.876603,
+            "lon": 108.329024
           },
           {
             "name": "Tasty House - Vietnamese & Indian Halal Restaurant",
             "rate": 4.2,
             "reviews": 204,
-            "note": null
+            "note": null,
+            "lat": 15.875826,
+            "lon": 108.320214
           }
         ]
       },
@@ -374,7 +394,9 @@
             "name": "Moments Hoi An",
             "rate": 4.7,
             "reviews": 2516,
-            "note": null
+            "note": null,
+            "lat": 15.877027,
+            "lon": 108.328675
           },
           {
             "name": "Uncle Huan Coffee",
@@ -388,7 +410,9 @@
             "name": "Mót Hội An - Nước Thảo Mộc Sả Chanh",
             "rate": 4.5,
             "reviews": 3578,
-            "note": null
+            "note": null,
+            "lat": 15.877171,
+            "lon": 108.327334
           }
         ]
       },
@@ -429,7 +453,9 @@
             "name": "Pizza 4P's Hoang Van Thu",
             "rate": 4.8,
             "reviews": 16057,
-            "note": "Alternatif jika tidak jadi ke Son Tra"
+            "note": "Alternatif jika tidak jadi ke Son Tra",
+            "lat": 16.062743,
+            "lon": 108.222798
           },
           {
             "name": "Umi Town Izakaya",
@@ -443,13 +469,17 @@
             "name": "I HATE MONDAY DANANG",
             "rate": 4.8,
             "reviews": 374,
-            "note": "+ Tempat lucu; - Cukup pricey & kurang otentik"
+            "note": "+ Tempat lucu; - Cukup pricey & kurang otentik",
+            "lat": 16.045345,
+            "lon": 108.235747
           },
           {
             "name": "Halal Food Karim",
             "rate": 4.5,
             "reviews": 479,
-            "note": null
+            "note": null,
+            "lat": 16.056489,
+            "lon": 108.231612
           }
         ]
       }
@@ -514,7 +544,9 @@
             "name": "Musa Karim Halal Restaurant",
             "rate": 4.7,
             "reviews": 204,
-            "note": null
+            "note": null,
+            "lat": 10.771647,
+            "lon": 106.69677
           },
           {
             "name": "Com Tam Bo Nuong Halal",
@@ -581,7 +613,9 @@
             "name": "Make Room",
             "rate": 4.7,
             "reviews": 360,
-            "note": null
+            "note": null,
+            "lat": 10.777044,
+            "lon": 106.702053
           }
         ]
       },
@@ -655,7 +689,9 @@
             "name": "LIDER (Clothing)",
             "rate": 4.5,
             "reviews": 130,
-            "note": null
+            "note": null,
+            "lat": 10.773487,
+            "lon": 106.702711
           },
           {
             "name": "LIBE (Clothing)",
@@ -678,7 +714,9 @@
             "name": "Chef House Halal Food",
             "rate": 4.8,
             "reviews": 790,
-            "note": null
+            "note": null,
+            "lat": 10.77172,
+            "lon": 106.703809
           },
           {
             "name": "Bò Né Bà Nũi",
@@ -726,7 +764,9 @@
             "name": "Tan Dinh Church (Gereja Pink)",
             "rate": 4.4,
             "reviews": 8970,
-            "note": null
+            "note": null,
+            "lat": 10.788336,
+            "lon": 106.690679
           },
           {
             "name": "Tan Dinh Market",
@@ -740,19 +780,25 @@
             "name": "Fahasa Bookstore (Souvenir)",
             "rate": 4.4,
             "reviews": 4136,
-            "note": null
+            "note": null,
+            "lat": 10.809889,
+            "lon": 106.722164
           },
           {
             "name": "Thuong Xanh Film & Camera",
             "rate": 4.8,
             "reviews": 409,
-            "note": null
+            "note": null,
+            "lat": 10.786605,
+            "lon": 106.686108
           },
           {
             "name": "Ngam Cafe",
             "rate": 4.8,
             "reviews": 409,
-            "note": null
+            "note": null,
+            "lat": 10.78644,
+            "lon": 106.686193
           }
         ]
       },
@@ -777,7 +823,9 @@
             "name": "Bo Ne Thanh Tu",
             "rate": 4.5,
             "reviews": 960,
-            "note": null
+            "note": null,
+            "lat": 10.786522,
+            "lon": 106.701505
           },
           {
             "name": "Mặn Mòi, Tao Đàn - Homey Authentic Vietnamese Cuisine",
@@ -808,7 +856,9 @@
             "name": "⬡ Opsi A — D5 - Binh Tay Market",
             "rate": 4.4,
             "reviews": 6319,
-            "note": null
+            "note": null,
+            "lat": 10.749364,
+            "lon": 106.651045
           },
           {
             "name": "⬡ Opsi B — Independence Palace",
@@ -830,7 +880,9 @@
             "name": "⬡ Opsi B — Saigon Riverfront Park",
             "rate": 4.6,
             "reviews": 598,
-            "note": "Naik Saigon Waterbus 15.000 VND"
+            "note": "Naik Saigon Waterbus 15.000 VND",
+            "lat": 10.77169,
+            "lon": 106.709801
           },
           {
             "name": "⬡ Opsi B — Turtle Lake",
@@ -855,7 +907,9 @@
             "name": "Chef House Halal Food",
             "rate": 4.8,
             "reviews": 790,
-            "note": null
+            "note": null,
+            "lat": 10.77172,
+            "lon": 106.703809
           },
           {
             "name": "Bò Né Bà Nũi",
