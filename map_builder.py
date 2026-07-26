@@ -9,7 +9,8 @@ from jinja2 import Template
 
 # Color palette per day index
 DAY_COLORS = ["#E8593C", "#1D9E75", "#378ADD", "#7F77DD", "#EF9F27", "#D85A30", "#0F6E56"]
-ICON_COLORS = ["red", "green", "blue", "purple", "orange", "darkred", "darkgreen"]
+ICON_COLORS     = ["red",      "green",      "blue",       "purple", "orange", "darkred", "darkgreen"]
+OPT_ICON_COLORS = ["lightred", "lightgreen", "cadetblue",  "pink",   "beige",  "orange",  "cadetblue"]
 
 CATEGORY_ICONS = {
     "flight": "plane",
@@ -179,16 +180,15 @@ def build_map(days: list[dict], center: list = None) -> folium.Map:
                     </div>
                 </div>
                 """
-                folium.CircleMarker(
+                folium.Marker(
                     location=[opt["lat"], opt["lon"]],
-                    radius=6,
-                    color=color,
-                    fill=True,
-                    fill_color=color,
-                    fill_opacity=0.7,
-                    weight=2,
                     popup=folium.Popup(popup_html, max_width=240),
                     tooltip=f"📋 {opt['name']} ({stop['name']})",
+                    icon=folium.Icon(
+                        color=OPT_ICON_COLORS[day_idx % len(OPT_ICON_COLORS)],
+                        icon="bookmark",
+                        prefix="fa",
+                    ),
                 ).add_to(opts_group)
     opts_group.add_to(m)
 
