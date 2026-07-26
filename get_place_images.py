@@ -67,39 +67,24 @@ async def _js_click_first_result(page):
         return None
 
 
-async def _extract_image(page) -> str | None:
-    """Find the first place-photo URL in the current Maps page."""
-    return await page.evaluate(r"""() => {
-        function normalize(src) {
-            // Bump to a display-friendly resolution
-            return src.replace(/=w\d+-h\d+[^"']*/g, '=w600-h400-k-no');
-        }
-        // 1) Prefer photos in the hero section (sidebar top image)
-        var hero = document.querySelector(
-            'button[jsaction*="heroHeaderImage"] img, '
-            + 'div[jsaction*="heroHeaderImage"] img'
-        );
-        if (hero && hero.src && hero.src.includes('googleusercontent.com')) {
-            return normalize(hero.src);
-        }
-        // 2) Any img whose src is a Google place photo (/p/ path = place photo)
-        var imgs = document.querySelectorAll('img[src*="googleusercontent.com"]');
-        for (var img of imgs) {
-            var src = img.src || '';
-            if (src.includes('/p/')) {
-                return normalize(src);
-            }
-        }
-        // 3) Lazy-loaded photos stored in data-src
-        imgs = document.querySelectorAll('img[data-src*="googleusercontent.com"]');
-        for (var img of imgs) {
-            var src = img.getAttribute('data-src') || '';
-            if (src.includes('/p/')) {
-                return normalize(src);
-            }
-        }
-        return null;
-    }""")
+_PLACE_PHOTO_PATHS = ("/gps-cs-s/", "/grass-cs/", "/geougc/", "/p/")
+_prev_photo_urls: set[str] = set()  # URLs captured in the previous navigation (used to filter stale cross-contamination)
+_EXCLUDE_PATHS    = ("/a-/",)  # user profile avatars — not place photos
+
+def _is_place_photo(url: str) -> bool:
+    return (
+        "googleusercontent.com" in url
+        and any(p in url for p in _PLACE_PHOTO_PATHS)
+        and not any(e in url for e in _EXCLUDE_PATHS)
+    )
+
+def _normalize_img_url(url: str) -> str:
+    """Standardise the size suffix of a googleusercontent place-photo URL."""
+    if "=" in url.rsplit("/", 1)[-1]:
+        # Replace existing size params
+        return re.sub(r"=\S+$", "=w600-h400-k-no", url)
+    # No size suffix — append one
+    return url + "=w600-h400-k-no"
 
 
 # ---------------------------------------------------------------------------
@@ -107,36 +92,66 @@ async def _extract_image(page) -> str | None:
 # ---------------------------------------------------------------------------
 
 async def get_image_for_place(page, name: str, lat: float, lon: float) -> tuple[str | None, str]:
-    # Coordinates-anchored URL → Maps opens near the right place
-    nav_url = (
-        "https://www.google.com/maps/place/"
-        + quote(name)
-        + f"/@{lat},{lon},17z"
-    )
+    """Navigate to the Maps place, intercept network photo requests, return first match."""
+
+    # Strip itinerary option prefixes like "⬡ Opsi A — " before searching Maps
+    search_name = re.sub(r"^[⬡⬢●○◆◇\s]*Opsi\s+\w+\s+[—–-]+\s*", "", name).strip() or name
+
+    # Skip generic placeholder stops that will never map to a real place
+    if re.search(r"^(Lunch|Dinner|Coffee Shop|Spa Day|Pasar Pagi|Opsi [AB] atau)", search_name):
+        return None, "no-place"
+
+    # Register listener BEFORE navigating so we catch all photo requests.
+    # We'll discard everything captured before the place URL is confirmed (below).
+    captured: list[str] = []
+
+    def _on_response(response):
+        if _is_place_photo(response.url):
+            captured.append(response.url)
+
+    page.on("response", _on_response)
+
+    # Search URL with coordinate anchor — /search/ works; /place/ drops unknown slugs
+    search_q = search_name.replace(" ", "+") + "+Vietnam"
+    nav_url = f"https://www.google.com/maps/search/{search_q}/@{lat},{lon},17z"
 
     try:
         await page.goto(nav_url, wait_until="domcontentloaded", timeout=25000)
     except Exception as e:
+        page.remove_listener("response", _on_response)
         return None, f"nav:{e}"
 
     await _dismiss_consent(page)
 
-    # Wait for Maps JS to settle (URL gets @lat,lon)
+    # Wait for Maps JS to settle
     page_url = await _poll_url(page, lambda u: "@" in u, timeout=10.0)
 
-    # If still on search results, click first result
+    # If still on search results, click first result and wait for place page
     if "/place/" not in page_url:
         await _js_click_first_result(page)
         page_url = await _poll_url(page, lambda u: "/place/" in u, timeout=8.0)
 
     if "/place/" not in page_url:
+        page.remove_listener("response", _on_response)
+        _prev_photo_urls.clear()
         return None, "no-place"
 
-    # Give the side panel time to load photos
-    await asyncio.sleep(2.5)
+    # Give the side panel time to load all photos for this place.
+    await asyncio.sleep(3.5)
 
-    img = await _extract_image(page)
-    return img, ("ok" if img else "no-img")
+    page.remove_listener("response", _on_response)
+
+    # Filter out URLs that were also present in the PREVIOUS navigation —
+    # those are stale in-flight responses from the prior Maps session bleeding in.
+    fresh = [u for u in captured if u not in _prev_photo_urls]
+
+    # Update the previous-URL set for the next call
+    _prev_photo_urls.clear()
+    _prev_photo_urls.update(captured)  # track everything seen this navigation
+
+    if fresh:
+        return _normalize_img_url(fresh[0]), "ok"
+    return None, "no-img"
 
 
 # ---------------------------------------------------------------------------
