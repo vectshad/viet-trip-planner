@@ -75,6 +75,36 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", s)).strip()
 
 
+# Maps often titles a place in Vietnamese while the itinerary names it in
+# English (or vice versa), leaving no shared token: "3T Cà Phê Trứng" resolves
+# to "3T Egg Coffee Sài Gòn", "Hoi An Ancient Town" to "Phố Cổ Hội An".
+# Folding these generic place-type words onto one language recovers the match.
+# Applied to both sides, so identical strings stay identical — only
+# cross-language pairs are affected.  Longest phrases first ("pho co" must be
+# rewritten before bare "pho", which is also the noodle soup).
+_VI_EN = [
+    ("pho co", "ancient town"),
+    ("nha tho", "church"),
+    ("bai bien", "beach"),
+    ("ca phe", "coffee"),
+    ("cho dem", "night market"),
+    ("nha hang", "restaurant"),
+    ("cong vien", "park"),
+    ("bao tang", "museum"),
+    ("trung", "egg"),
+    ("cho", "market"),
+    ("quan", "shop"),
+]
+
+
+def _fold(s: str) -> str:
+    """Normalise, then fold Vietnamese place-type words to their English form."""
+    s = _norm(s)
+    for vi, en in _VI_EN:
+        s = re.sub(rf"\b{vi}\b", en, s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
 # Words that never identify a place on their own.
 _GENERIC_WORDS = {
     "lunch", "dinner", "breakfast", "brunch", "makan", "makansiang",
@@ -180,7 +210,7 @@ def _title_matches(query: str, title: str) -> float:
     Combines token overlap (handles reordering/extra words) with character
     similarity (handles 'Da Nang' vs 'Danang'), taking the best signal.
     """
-    q, t = _norm(query), _norm(title)
+    q, t = _fold(query), _fold(title)
     if not q or not t:
         return 0.0
 
@@ -193,7 +223,22 @@ def _title_matches(query: str, title: str) -> float:
     qs, ts = qt - _PLACE_WORDS, tt - _PLACE_WORDS
     if qs and ts:
         inter = len(qs & ts)
-        token_score = max(inter / len(qs), inter / len(ts))
+        # No word in common (after dropping city names) means a different
+        # place. Character similarity alone must not carry a match: short
+        # unrelated names collide by coincidence ("Ngam Cafe" vs "Ben Thanh
+        # Market" scores 0.45 on characters). Genuine spelling/diacritic
+        # variants are caught by the substring check above.
+        if inter == 0:
+            return 0.0
+        # A short query's tokens can all appear inside a long, unrelated title
+        # ("Tan Coffee" vs "Thom's Sourdough Bakery & Coffee - Tan Thanh
+        # beach"), which plain coverage scores as a perfect match. When the
+        # query is short and the title carries several extra significant words,
+        # require overlap in both directions instead.
+        if len(qs) <= 2 and len(ts) > len(qs) + 2:
+            token_score = 2 * inter / (len(qs) + len(ts))
+        else:
+            token_score = max(inter / len(qs), inter / len(ts))
     else:
         inter = len(qt & tt)
         token_score = inter / max(len(qt), len(tt)) if (qt and tt) else 0.0
@@ -250,6 +295,12 @@ async def _open_first_result(page) -> bool:
             await page.wait_for_selector(_RESULT_LINK_SEL, timeout=4000)
         except Exception:
             pass
+        # Always take the topmost result. Trying to skip "sponsored" cards by
+        # scanning ancestor text was tested and reverted: closest() can resolve
+        # to a wrapper holding several cards, so one sponsored card in the group
+        # caused valid results to be skipped in favour of worse ones further
+        # down (searching "Tan Coffee" reached a bakery 4 km away that way).
+        # A paid result that slips through is caught by the title check instead.
         try:
             clicked = await page.evaluate(
                 """(sel) => {
@@ -270,10 +321,36 @@ async def _open_first_result(page) -> bool:
 # Reads the hero photo + title from the panel currently open.  Selector chain
 # confirmed against live Maps DOM: button.aoRNLd is the cover-photo button,
 # div.ZKCDEc its header container; the final branch is a size-ranked fallback.
+#
+# Title must come from h1.DUwDvf (the place panel), NOT the first h1 on the
+# page: when Maps keeps the results feed open beside the panel, the feed's own
+# heading ("Hasil" / "Results") and any sponsored-card headings come first in
+# document order, and reading those rejected 17 valid places as bad-match.
 _EXTRACT_JS = """() => {
   const ok = s => s && s.includes('googleusercontent') && !s.includes('/a-/');
-  const h1 = document.querySelector('h1');
-  const title = h1 ? h1.textContent.trim() : null;
+  const CHROME = new Set(['hasil','results','resultats','ergebnisse',
+                          'resultaten','bersponsor','sponsored','iklan']);
+  const isChrome = t => CHROME.has(t.replace(/[^a-zA-Z]/g, '').toLowerCase());
+
+  let title = null;
+  const panel = document.querySelector('h1.DUwDvf');
+  if (panel && panel.textContent.trim()) {
+    title = panel.textContent.trim();
+  } else {
+    // Fallbacks: the place panel's own role=main carries the name as
+    // aria-label; failing that, the last non-chrome h1 on the page.
+    const mains = [...document.querySelectorAll('div[role="main"][aria-label]')];
+    for (let i = mains.length - 1; i >= 0 && !title; i--) {
+      const al = (mains[i].getAttribute('aria-label') || '').trim();
+      if (al && !isChrome(al)) title = al;
+    }
+    if (!title) {
+      const hs = [...document.querySelectorAll('h1')]
+        .map(h => h.textContent.trim())
+        .filter(t => t && !isChrome(t));
+      if (hs.length) title = hs[hs.length - 1];
+    }
+  }
 
   const hero = document.querySelector('button.aoRNLd img');
   if (hero && ok(hero.src)) return {title, img: hero.src, how: 'hero'};
@@ -443,7 +520,12 @@ async def main():
                     entry["img_url"] = img
                     print(f"OK   [{score:.2f}] {title}")
                 elif status == "bad-match":
-                    print(f"SKIP bad-match [{score:.2f}] got {title!r}")
+                    # Definitive wrong place — drop any previously stored image
+                    # rather than leave an unverified one behind. Transient
+                    # failures (nav/eval) deliberately keep what's there.
+                    dropped = entry.pop("img_url", None)
+                    print(f"SKIP bad-match [{score:.2f}] got {title!r}"
+                          + ("  (cleared old image)" if dropped else ""))
                 else:
                     print(f"MISS {status}" + (f" ({title})" if title else ""))
 
